@@ -297,6 +297,13 @@ const productos = [
     imagen:"linterna-con-panel-solar.jpg",
 },
 
+{
+    nombre:"Pilas AA x60unidades",
+    precio:20000,
+    categoria:"Camping",
+    imagen:"pilas-aa-x60unidades.jpg"
+},
+
 //Seccion Gaming
 
 {
@@ -805,13 +812,6 @@ const productos = [
 },
 
 {
-    nombre:"Picador triturador 500ml",
-    precio:15000,
-    categoria:"Hogar",
-    imagen:"picador-triturador-500ml.jpg"
-},
-
-{
     nombre:"Cesto de ropa doble",
     precio:27000,
     categoria:"Hogar",
@@ -867,8 +867,205 @@ const productos = [
     imagen:"timbre-inalambrico.jpg"
 },
 
+{
+    nombre:"Pistola masajeadora",
+    precio:25000,
+    categoria:"Hogar",
+    imagen:"pistola-masajeadora.jpg"
+},
+
+{
+    nombre:"Calculadora cientifica",
+    precio:10000,
+    categoria:"Hogar",
+    imagen:"calculadora-cientifica.jpg"
+},
+
+{
+    nombre:"Luz de emergencia -30 led",
+    precio:15000,
+    categoria:"Hogar",
+    imagen:"luz-emergencia-30-led.jpg"
+},
+
+{
+    nombre:"Aspiradora Dinax tacho",
+    precio:60000,
+    categoria:"Hogar",
+    imagen:"aspiradora-dinax-tacho.jpg"
+},
 
 
+
+//Sección Cocina
+
+{
+    nombre:"Picador triturador 500ml",
+    precio:15000,
+    categoria:"Cocina",
+    imagen:"picador-triturador-500ml.jpg"
+},
+
+{
+    nombre:"Dosificador aceite spray",
+    precio:10000,
+    categoria:"Cocina",
+    imagen:"dosificador-aceite-spray.jpg"
+},
+
+{
+    nombre:"Balanza comercial 40kg",
+    precio:77000,
+    categoria:"Cocina",
+    imagen:"balanza-comercial-40kg.jpg"
+},
+
+{
+    nombre:"Tostadora Suono 2 rebanadas",
+    precio:30000,
+    categoria:"Cocina",
+    imagen:"tostadora-suono-2-rebanadas.jpg"
+},
+
+{
+    nombre:"Especiero giratorio 12 frascos",
+    precio:35000,
+    categoria:"Cocina",
+    imagen:"especiero-giratorio-12-frascos.jpg"
+},
+
+{
+    nombre:"Yogurtera Suono 1.4 litros",
+    precio:40000,
+    categoria:"Cocina",
+    imagen:"yogurtera-suono-1.4-litros.jpg"
+},
+
+{
+    nombre:"Vaporera electrica 3 cestas 8.5 litros",
+    precio:45000,
+    categoria:"Cocina",
+    imagen:"vaporera-electrica-3-cestas-8.5-litros.jpg"
+},
+
+{
+    nombre:"Waflera electrica Dinax 2 porciones",
+    precio:32000,
+    categoria:"Cocina",
+    imagen:"waflera-electrica-dinax-2-porciones.jpg"
+},
+
+{
+    nombre:"Sandwichera panini grill Dinax 700w",
+    precio:35000,
+    categoria:"Cocina",
+    imagen:"sandwichera-panini-grill-dinax-700w.jpg"
+},
+
+{
+    nombre:"Batidora 3 en 1 inalambrico",
+    precio:25000,
+    categoria:"Cocina",
+    imagen:"batidora-3-en-1-inalambrico.jpg"
+},
+
+{
+    nombre:"Afilador de cuchillos manual",
+    precio:5000,
+    categoria:"Cocina",
+    imagen:"afilador-cuchillos-manual.jpg"
+},
+
+{
+    nombre:"Freidora de aire Suono 3.2 litros",
+    precio:75000,
+    categoria:"Cocina",
+    imagen:"freidora-aire-suono-3.2-litros.jpg"
+},
+
+{
+    nombre:"Bateria de cocina",
+    precio:72000,
+    categoria:"Cocina",
+    imagen:"bateria-cocina.jpg"
+},
+
+{
+    nombre:"Sandwichera OM",
+    precio:35000,
+    categoria:"Cocina",
+    imagen:"sandwichera-om.jpg"
+},
+
+{
+    nombre:"Mini pimer Lumabella",
+    precio:30000,
+    categoria:"Cocina",
+    imagen:"mini-pimer-lumabella.jpg"
+},
+
+{
+    nombre:"Multiprocesadora 4 en 1 - Lumabella",
+    precio:65000,
+    categoria:"Cocina",
+    imagen:"multiprocesadora-4-en-1-lumabella.jpg"
+},
+
+{
+    nombre:"Anafe electrico OM",
+    precio:20000,
+    categoria:"Cocina",
+    imagen:"anafe-electrico-om.jpg"
+},
+
+{
+    nombre:"Maquina de mini donas",
+    precio:47000,
+    categoria:"Cocina",
+    imagen:"maquina-mini-donas.jpg"
+},
+
+{
+    nombre:"Batidora Sokany",
+    precio:25000,
+    categoria:"Cocina",
+    imagen:"batidora-sokany.jpg"
+},
+
+{
+    nombre:"Especiero magnetico",
+    precio:18000,
+    categoria:"Cocina",
+    imagen:"especiero-magnetico.jpg"
+},
+
+{
+    nombre:"Picador recargable",
+    precio:12000,
+    categoria:"Cocina",
+    imagen:"picador-recargable.jpg"
+},
+
+{
+    nombre:"Mandolina",
+    precio:20000,
+    categoria:"Cocina",
+    imagen:"mandolina.jpg"
+},
+
+{
+    nombre:"Set especiero",
+    precio:35000,
+    categoria:"Cocina",
+    imagen:"set-especiero.jpg"
+},
+
+{
+    nombre:"Dispenser automatico de agua",
+    precio:12000,
+    categoria:"Cocina",
+    imagen:"dispenser-automatico-agua.jpg"
+},
 
 
 

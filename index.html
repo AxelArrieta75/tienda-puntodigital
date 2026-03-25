@@ -1,108 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Punto Digital</title>
-
-<style>
-body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background:#f4f4f4;
-}
-
-header{
-    background:#000;
-    color:#f2b705;
-    padding:40px 20px;
-    text-align:center;
-}
-
-.logo{
-    width:120px;
-    border-radius:50%;
-    margin-bottom:15px;
-}
-
-.buscador{
-    text-align:center;
-    padding:30px;
-}
-
-input, select{
-    padding:10px;
-    width:250px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    margin:5px;
-}
-
-.grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-    gap:20px;
-    max-width:1200px;
-    margin:40px auto;
-    padding:0 20px;
-}
-
-.card{
-    background:#fff;
-    border-radius:10px;
-    padding:20px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
-    text-align:center;
-    transition:0.3s;
-}
-
-.card:hover{
-    transform:translateY(-5px);
-}
-
-.producto-img{
-    width:100%;
-    height:200px;
-    object-fit:cover;
-    border-radius:8px;
-    margin-bottom:15px;
-}
-
-.precio{
-    font-weight:bold;
-    margin:10px 0;
-}
-
-.btn{
-    display:inline-block;
-    padding:8px 15px;
-    background:#f2b705;
-    color:#000;
-    text-decoration:none;
-    border-radius:6px;
-    font-weight:bold;
-}
-
-footer{
-    background:#111;
-    color:#fff;
-    text-align:center;
-    padding:20px;
-    margin-top:40px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto Digital | Tienda</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
     <img src="img/logo.png" class="logo" alt="Logo">
     <h1>Punto Digital</h1>
-    <p>Tecnología al mejor precio</p>
+    <p>Tu mundo digital, en un punto.</p>
 </header>
 
-<div class="buscador">
-    <input type="text" id="busqueda" placeholder="Buscar producto...">
+<div class="controles">
+    <input type="text" id="busqueda" placeholder="Buscar tecnología...">
 
     <select id="filtroCategoria">
         <option value="Todos">Todas las categorías</option>
@@ -123,65 +36,108 @@ footer{
     </select>
 </div>
 
-<div class="grid" id="productos"></div>
+<div class="grid" id="contenedor-productos"></div>
 
-<footer>
-© 2026 Punto Digital - Todos los derechos reservados
-</footer>
+<div id="btn-flotante" onclick="toggleCarrito()">
+    🛒 <span id="cantidad-badge">0</span>
+</div>
+
+<div id="carrito-lateral" class="carrito-sidebar">
+    <div class="carrito-header">
+        <h2>Tu Pedido</h2>
+        <button onclick="toggleCarrito()" class="cerrar-x">✕</button>
+    </div>
+    
+    <div id="lista-carrito">
+        </div>
+    
+    <div class="carrito-footer">
+        <div class="total-flex">
+            <span>Total:</span>
+            <span id="total-monto">$0</span>
+        </div>
+        <a href="#" id="enviar-ws" class="btn-ws" target="_blank">Enviar por WhatsApp</a>
+        <button onclick="toggleCarrito()" class="btn-seguir">Continuar comprando</button>
+    </div>
+</div>
 
 <script src="productos.js"></script>
-
 <script>
-const contenedor = document.getElementById("productos");
-const inputBusqueda = document.getElementById("busqueda");
-const filtroCategoria = document.getElementById("filtroCategoria");
+    // Tu lógica de JavaScript (idéntica a la anterior pero apuntando a los nuevos IDs)
+    let carrito = [];
+    const contProductos = document.getElementById("contenedor-productos");
+    const listaCarritoUI = document.getElementById("lista-carrito");
+    const cantidadBadge = document.getElementById("cantidad-badge");
+    const totalMontoUI = document.getElementById("total-monto");
 
-function mostrarProductos(lista){
-    contenedor.innerHTML = "";
-
-    lista.forEach(producto => {
-        contenedor.innerHTML += `
-        <div class="card">
-            <img src="img/${producto.imagen}" 
-                 alt="${producto.nombre}" 
-                 class="producto-img">
-
-            <h3>${producto.nombre}</h3>
-            <p><strong>${producto.categoria}</strong></p>
-            <div class="precio">$${producto.precio.toLocaleString()}</div>
-
-            <a href="https://wa.me/5492625460527?text=Hola%20quiero%20consultar%20por%20${producto.nombre}" 
-               target="_blank" 
-               class="btn">
-               Consultar
-            </a>
-        </div>
-        `;
-    });
-}
-
-function filtrarProductos(){
-    const texto = inputBusqueda.value.toLowerCase();
-    const categoria = filtroCategoria.value;
-
-    let filtrados = productos.filter(p =>
-        p.nombre.toLowerCase().includes(texto)
-    );
-
-    if(categoria !== "Todos"){
-        filtrados = filtrados.filter(p =>
-            p.categoria === categoria
-        );
+    function renderizar(lista) {
+        contProductos.innerHTML = "";
+        lista.forEach(p => {
+            contProductos.innerHTML += `
+                <div class="card">
+                    <img src="img/${p.imagen}" class="producto-img" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
+                    <h3>${p.nombre}</h3>
+                    <p class="cat-tag">${p.categoria}</p>
+                    <div class="precio">$${p.precio.toLocaleString()}</div>
+                    <button class="btn-add" onclick="agregarAlCarrito('${p.nombre.replace(/'/g, "\\'")}', ${p.precio})">Agregar</button>
+                </div>
+            `;
+        });
     }
 
-    mostrarProductos(filtrados);
-}
+    function agregarAlCarrito(nombre, precio) {
+        carrito.push({ nombre, precio });
+        actualizarUI();
+    }
 
-inputBusqueda.addEventListener("keyup", filtrarProductos);
-filtroCategoria.addEventListener("change", filtrarProductos);
+    function eliminarDelCarrito(i) {
+        carrito.splice(i, 1);
+        actualizarUI();
+    }
 
-mostrarProductos(productos);
+    function actualizarUI() {
+        cantidadBadge.innerText = carrito.length;
+        listaCarritoUI.innerHTML = "";
+        let total = 0;
+        let textoWS = "Hola Punto Digital! Me interesan estos productos:%0A%0A";
+
+        carrito.forEach((item, i) => {
+            total += item.precio;
+            textoWS += `- ${item.nombre} ($${item.precio})%0A`;
+            listaCarritoUI.innerHTML += `
+                <div class="item-carrito">
+                    <div>
+                        <div class="item-nom">${item.nombre}</div>
+                        <div class="item-pre">$${item.precio.toLocaleString()}</div>
+                    </div>
+                    <button class="btn-del" onclick="eliminarDelCarrito(${i})">🗑️</button>
+                </div>
+            `;
+        });
+
+        totalMontoUI.innerText = "$" + total.toLocaleString();
+        const numero = "5492625460527";
+        document.getElementById("enviar-ws").href = `https://wa.me/${numero}?text=${textoWS}%0A*Total: $${total}*`;
+    }
+
+    function toggleCarrito() {
+        document.getElementById("carrito-lateral").classList.toggle("open");
+    }
+
+    function filtrar() {
+        const texto = document.getElementById("busqueda").value.toLowerCase();
+        const cat = document.getElementById("filtroCategoria").value;
+        const filtrados = productos.filter(p => 
+            p.nombre.toLowerCase().includes(texto) && (cat === "Todos" || p.categoria === cat)
+        );
+        renderizar(filtrados);
+    }
+
+    document.getElementById("busqueda").addEventListener("keyup", filtrar);
+    document.getElementById("filtroCategoria").addEventListener("change", filtrar);
+
+    // Iniciar con productos
+    window.onload = () => { if(typeof productos !== 'undefined') renderizar(productos); };
 </script>
-
 </body>
 </html>
