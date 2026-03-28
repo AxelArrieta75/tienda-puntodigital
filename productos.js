@@ -618,7 +618,7 @@ const productos = [
 
 {
     nombre:"Secador de pelo Sokany",
-    precio:12000,
+    precio:23000,
     categoria:"Belleza y cuidado personal",
     imagen:"secador-pelo-sokany.jpg"
 },
@@ -646,7 +646,7 @@ const productos = [
 
 {
     nombre:"Secador profesional Hythosy",
-    precio:35000,
+    precio:27000,
     categoria:"Belleza y cuidado personal",
     imagen:"secador-profesional-hythosy.jpg"
 },
@@ -865,13 +865,6 @@ const productos = [
     precio:10000,
     categoria:"Hogar",
     imagen:"timbre-inalambrico.jpg"
-},
-
-{
-    nombre:"Pistola masajeadora",
-    precio:25000,
-    categoria:"Hogar",
-    imagen:"pistola-masajeadora.jpg"
 },
 
 {
