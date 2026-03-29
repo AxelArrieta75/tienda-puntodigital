@@ -2,142 +2,54 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Punto Digital | Tienda</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Punto Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <img src="img/logo.png" class="logo" alt="Logo">
-    <h1>Punto Digital</h1>
-    <p>Tu mundo digital, en un punto.</p>
+<header class="main-header">
+    <img src="img/logo.png" class="logo-principal" alt="Logo">
+    <h1 class="brand-name">PUNTO DIGITAL</h1>
+    <p class="slogan">Tu mundo digital, en un punto.</p>
 </header>
 
-<div class="controles">
-    <input type="text" id="busqueda" placeholder="Buscar tecnología...">
+<nav class="sticky-nav">
+    <div class="search-box">
+        <input type="text" id="busqueda" placeholder="¿Qué buscas hoy?">
+    </div>
+    <div id="grid-categorias" class="category-bar-double"></div>
+</nav>
 
-    <select id="filtroCategoria">
-        <option value="Todos">Todas las categorías</option>
-        <option value="Auriculares">Auriculares</option>
-        <option value="Smartwatch">Smartwatch</option>
-        <option value="Audio">Audio</option>
-        <option value="Gaming">Gaming</option>
-        <option value="Herramientas">Herramientas</option>
-        <option value="Pendrives y memorias">Pendrives y memorias</option>
-        <option value="Camping">Camping</option>
-        <option value="Termos y botellas">Termos y botellas</option>
-        <option value="Juguetes">Juguetes</option>
-        <option value="Belleza y cuidado personal">Belleza y cuidado personal</option>
-        <option value="Accesorios para celulares">Accesorios para celulares</option>
-        <option value="Hogar">Hogar</option>
-        <option value="Cocina">Cocina</option>
-        <option value="Vehículos">Vehículos</option>
-    </select>
-</div>
+<main id="contenedor-productos" class="products-grid"></main>
 
-<div class="grid" id="contenedor-productos"></div>
-
-<div id="btn-flotante" onclick="toggleCarrito()">
+<div id="cart-float" onclick="toggleCarrito()">
     🛒 <span id="cantidad-badge">0</span>
 </div>
 
-<div id="carrito-lateral" class="carrito-sidebar">
-    <div class="carrito-header">
-        <h2>Tu Pedido</h2>
-        <button onclick="toggleCarrito()" class="cerrar-x">✕</button>
-    </div>
-    
-    <div id="lista-carrito">
-        </div>
-    
-    <div class="carrito-footer">
-        <div class="total-flex">
-            <span>Total:</span>
-            <span id="total-monto">$0</span>
-        </div>
-        <a href="#" id="enviar-ws" class="btn-ws" target="_blank">Enviar por WhatsApp</a>
-        <button onclick="toggleCarrito()" class="btn-seguir">Continuar comprando</button>
+<div id="modal-detalle" class="modal" onclick="cerrarModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="cerrarModal(null)">✕</button>
+        <div id="modal-body"></div>
     </div>
 </div>
 
+<aside id="carrito-lateral" class="cart-sidebar">
+    <div class="cart-header">
+        <h2>Tu Pedido</h2>
+        <button onclick="toggleCarrito()" class="btn-close">✕</button>
+    </div>
+    <div id="lista-carrito" class="cart-body"></div>
+    <div class="cart-footer">
+        <div class="total-container">
+            <span>Total:</span>
+            <span id="total-monto">$0</span>
+        </div>
+        <button onclick="enviarWhatsApp()" class="btn-whatsapp">Finalizar por WhatsApp</button>
+    </div>
+</aside>
+
 <script src="productos.js"></script>
-<script>
-    // Tu lógica de JavaScript (idéntica a la anterior pero apuntando a los nuevos IDs)
-    let carrito = [];
-    const contProductos = document.getElementById("contenedor-productos");
-    const listaCarritoUI = document.getElementById("lista-carrito");
-    const cantidadBadge = document.getElementById("cantidad-badge");
-    const totalMontoUI = document.getElementById("total-monto");
-
-    function renderizar(lista) {
-        contProductos.innerHTML = "";
-        lista.forEach(p => {
-            contProductos.innerHTML += `
-                <div class="card">
-                    <img src="img/${p.imagen}" class="producto-img" onerror="this.src='https://via.placeholder.com/200?text=Sin+Imagen'">
-                    <h3>${p.nombre}</h3>
-                    <p class="cat-tag">${p.categoria}</p>
-                    <div class="precio">$${p.precio.toLocaleString()}</div>
-                    <button class="btn-add" onclick="agregarAlCarrito('${p.nombre.replace(/'/g, "\\'")}', ${p.precio})">Agregar</button>
-                </div>
-            `;
-        });
-    }
-
-    function agregarAlCarrito(nombre, precio) {
-        carrito.push({ nombre, precio });
-        actualizarUI();
-    }
-
-    function eliminarDelCarrito(i) {
-        carrito.splice(i, 1);
-        actualizarUI();
-    }
-
-    function actualizarUI() {
-        cantidadBadge.innerText = carrito.length;
-        listaCarritoUI.innerHTML = "";
-        let total = 0;
-        let textoWS = "Hola Punto Digital! Me interesan estos productos:%0A%0A";
-
-        carrito.forEach((item, i) => {
-            total += item.precio;
-            textoWS += `- ${item.nombre} ($${item.precio})%0A`;
-            listaCarritoUI.innerHTML += `
-                <div class="item-carrito">
-                    <div>
-                        <div class="item-nom">${item.nombre}</div>
-                        <div class="item-pre">$${item.precio.toLocaleString()}</div>
-                    </div>
-                    <button class="btn-del" onclick="eliminarDelCarrito(${i})">🗑️</button>
-                </div>
-            `;
-        });
-
-        totalMontoUI.innerText = "$" + total.toLocaleString();
-        const numero = "5492625460527";
-        document.getElementById("enviar-ws").href = `https://wa.me/${numero}?text=${textoWS}%0A*Total: $${total}*`;
-    }
-
-    function toggleCarrito() {
-        document.getElementById("carrito-lateral").classList.toggle("open");
-    }
-
-    function filtrar() {
-        const texto = document.getElementById("busqueda").value.toLowerCase();
-        const cat = document.getElementById("filtroCategoria").value;
-        const filtrados = productos.filter(p => 
-            p.nombre.toLowerCase().includes(texto) && (cat === "Todos" || p.categoria === cat)
-        );
-        renderizar(filtrados);
-    }
-
-    document.getElementById("busqueda").addEventListener("keyup", filtrar);
-    document.getElementById("filtroCategoria").addEventListener("change", filtrar);
-
-    // Iniciar con productos
-    window.onload = () => { if(typeof productos !== 'undefined') renderizar(productos); };
-</script>
 </body>
 </html>
