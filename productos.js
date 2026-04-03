@@ -89,7 +89,7 @@ const productos = [
     {nombre:"Mate acero 180ml", precio:10000, categoria:"Termos", imagen:"mate-acero-180ml.jpg"},
     {nombre:"Botellas estampadas 500ml", precio:18000, categoria:"Termos", imagen:"botellas-estampadas-500ml.jpg"},
     {nombre:"Termos 1.3 litros", precio:28000, categoria:"Termos", imagen:"termos-1.3-litros.jpg"},
-    {nombre:"Mates autocebantes", precio:20000, categoria:"Termos", imagen:"mates-autocebantes.jpg"},
+    {nombre:"Mates autocebantes", precio:25000, categoria:"Termos", imagen:"mates-autocebantes.jpg"},
 
     // Juguetes
     {nombre:"Arco de futbol", precio:25000, categoria:"Juguetes", imagen:"arco-futbol.jpg"},
@@ -149,6 +149,13 @@ const productos = [
     {nombre:"Calculadora cientifica", precio:10000, categoria:"Hogar", imagen:"calculadora-cientifica.jpg"},
     {nombre:"Luz de emergencia -30 led", precio:15000, categoria:"Hogar", imagen:"luz-emergencia-30-led.jpg"},
     {nombre:"Aspiradora Dinax tacho", precio:60000, categoria:"Hogar", imagen:"aspiradora-dinax-tacho.jpg"},
+    {nombre:"Sellador térmico de bolsas", precio:12000, categoria:"Hogar", imagen:"sellador-termico-bolsas.jpg"},
+    {nombre:"Barra de sonido + woofer 90w", precio:145000, categoria:"Hogar", imagen:"barra-sonido-woofer.jpg"},
+    {nombre:"Proyector ultra HD", precio:105000, categoria:"Hogar", imagen:"proyector-ultra-hd.jpg"},
+    {nombre:"Lámpara touch recargable", precio:22000, categoria:"Hogar", imagen:"lampara-touch-recargable.jpg"},
+    {nombre:"Tiras led - 5 metros", precio:15000, categoria:"Hogar", imagen:"tiras-led-5-metros.jpg"},
+    {nombre:"Lámpara velador recargable", precio:20000, categoria:"Hogar", imagen:"lampara-velador-recargable.jpg"},
+    {nombre:"Lámpara luz pared", precio:15000, categoria:"Hogar", imagen:"lampara-luz-pared.jpg"},
 
     // Cocina
     {nombre:"Picador triturador 500ml", precio:15000, categoria:"Cocina", imagen:"picador-triturador-500ml.jpg"},
@@ -174,7 +181,16 @@ const productos = [
     {nombre:"Picador recargable", precio:12000, categoria:"Cocina", imagen:"picador-recargable.jpg"},
     {nombre:"Mandolina", precio:20000, categoria:"Cocina", imagen:"mandolina.jpg"},
     {nombre:"Set especiero", precio:35000, categoria:"Cocina", imagen:"set-especiero.jpg"},
-    {nombre:"Dispenser automatico de agua", precio:12000, categoria:"Cocina", imagen:"dispenser-automatico-agua.jpg"}
+    {nombre:"Dispenser automatico de agua", precio:12000, categoria:"Cocina", imagen:"dispenser-automatico-agua.jpg"},
+
+    // Sección Combos
+    {nombre:"Combo emprendedor auriculares" , precio:75000, categoria:"Combos", imagen:"combo-emprendedor-auriculares.jpg"},
+    {nombre:"Combo kiosco", precio:100000, categoria:"Combos", imagen:"combo-kiosco.jpg"},
+    {nombre:"Combo herramientas", precio:90000, categoria:"Combos", imagen:"combo-herramientas.jpg"},
+    {nombre:"Combo herramientas 2", precio:185000, categoria:"Combos", imagen:"combo-herramientas-2.jpg"},
+    {nombre:"Combo belleza", precio:93500, categoria:"Combos", imagen:"combo-belleza.jpg"},
+    {nombre:"Combo cocina", precio:120000, categoria:"Combos", imagen:"combo-cocina.jpg"},
+    {nombre:"Combo desayuno", precio:87000, categoria:"Combos", imagen:"combo-desayuno.jpg"},
 ];
 
 
@@ -193,7 +209,8 @@ const categoriasConfig = [
     { nombre: "Celulares", icono: "📱" }, // Corregido
     { nombre: "Hogar", icono: "🏠" },
     { nombre: "Cocina", icono: "🍳" },
-    { nombre: "Vehículos", icono: "🚗" }
+    { nombre: "Vehículos", icono: "🚗" },
+    { nombre: "Combos", icono: "🎁" },
 ];
 
 
@@ -304,7 +321,7 @@ function enviarWhatsApp() {
     let m = "¡Hola Punto Digital! Mi pedido es:%0A";
     carrito.forEach(i => m += `• ${i.cantidad}x ${i.nombre} ($${(i.precio*i.cantidad).toLocaleString('es-AR')})%0A`);
     m += `%0A*Total: ${document.getElementById("total-monto").innerText}*`;
-    window.open(`https://wa.me/5492625460527?text=${m}`);
+    window.open(`https://wa.me/5492604401898?text=${m}`);
 }
 
 document.getElementById("busqueda").addEventListener("keyup", filtrar);
