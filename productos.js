@@ -24,6 +24,7 @@ const categoriasConfig = [
     { nombre: "Cocina", icono: "🍳" },
     { nombre: "Vehículos", icono: "🚗" },
     { nombre: "Combos", icono: "🎁" },
+    {nombre:  "Perfumería", icono: "🌸"},
 ];
 
 // ==========================================

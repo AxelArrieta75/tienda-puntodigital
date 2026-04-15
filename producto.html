@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Producto | Punto Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px;">
+
+    <div id="detalle-pagina" class="product-detail-container" style="max-width: 900px; width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid #333; background: #1a1a1a;">
+        </div>
+
+    <script>
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const nombre = params.get('nombre') || "Producto";
+            const precio = params.get('precio') || "0";
+            const imagen = params.get('img') || "";
+            const cat = params.get('cat') || "General";
+
+            document.getElementById('detalle-pagina').innerHTML = `
+                <div class="product-gallery">
+                    <img src="${imagen}" onerror="this.src='https://via.placeholder.com/400'">
+                </div>
+                <div class="product-info-side">
+                    <span class="product-category-tag">${cat}</span>
+                    <h2>${nombre}</h2>
+                    <div class="product-price-large">$${parseInt(precio).toLocaleString('es-AR')}</div>
+                    <p style="color:#888; font-size:0.9rem; margin-bottom:30px;">
+                        ✅ Garantía oficial Punto Digital<br>
+                        🚀 Envío a domicilio disponible
+                    </p>
+                    <button class="btn-add" style="padding: 18px; font-size: 1.1rem;" onclick="window.close()">
+                        Volver a la tienda
+                    </button>
+                </div>
+            `;
+            document.title = nombre + " | Punto Digital";
+        };
+    </script>
+</body>
+</html>
