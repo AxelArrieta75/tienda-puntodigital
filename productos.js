@@ -23,8 +23,9 @@ const categoriasConfig = [
     { nombre: "Hogar", icono: "🏠" },
     { nombre: "Cocina", icono: "🍳" },
     { nombre: "Vehículos", icono: "🚗" },
+    { nombre: "Mascotas", icono: "🐾"},
+    { nombre: "Perfumería", icono: "🌸"},
     { nombre: "Combos", icono: "🎁" },
-    {nombre:  "Perfumería", icono: "🌸"},
 ];
 
 // ==========================================
