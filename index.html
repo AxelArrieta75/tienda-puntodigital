@@ -2,54 +2,69 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Punto Digital</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto Digital - Catálogo Online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="main-header">
-    <img src="img/logo.png" class="logo-principal" alt="Logo">
-    <h1 class="brand-name">PUNTO DIGITAL</h1>
-    <p class="slogan">Tu mundo digital, en un punto.</p>
-</header>
+    <header class="main-header">
+        <img src="img/logo.png" alt="Punto Digital Logo" class="logo-principal" onerror="this.src='https://via.placeholder.com/150/f2b705/000000?text=Punto+Digital'">
+        <h1 class="brand-name">Punto Digital</h1>
+    </header>
 
-<nav class="sticky-nav">
-    <div class="search-box">
-        <input type="text" id="busqueda" placeholder="¿Qué buscas hoy?">
-    </div>
-    <div id="grid-categorias" class="category-bar-double"></div>
-</nav>
-
-<main id="contenedor-productos" class="products-grid"></main>
-
-<div id="cart-float" onclick="toggleCarrito()">
-    🛒 <span id="cantidad-badge">0</span>
-</div>
-
-<div id="modal-detalle" class="modal" onclick="cerrarModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <button class="modal-close" onclick="cerrarModal(null)">✕</button>
-        <div id="modal-body"></div>
-    </div>
-</div>
-
-<aside id="carrito-lateral" class="cart-sidebar">
-    <div class="cart-header">
-        <h2>Tu Pedido</h2>
-        <button onclick="toggleCarrito()" class="btn-close">✕</button>
-    </div>
-    <div id="lista-carrito" class="cart-body"></div>
-    <div class="cart-footer">
-        <div class="total-container">
-            <span>Total:</span>
-            <span id="total-monto">$0</span>
+    <nav class="sticky-nav">
+        <div class="search-box">
+            <input type="text" id="busqueda" placeholder="¿Qué estás buscando hoy?">
         </div>
-        <button onclick="enviarWhatsApp()" class="btn-whatsapp">Finalizar por WhatsApp</button>
-    </div>
-</aside>
+        <div class="category-bar-double" id="grid-categorias"></div>
+    </nav>
 
-<script src="productos.js"></script>
+    <main class="products-grid" id="contenedor-productos">
+        </main>
+
+    <div id="cart-float" onclick="toggleCarrito()">
+        🛒<span id="cantidad-badge">0</span>
+    </div>
+
+    <div id="carrito-lateral" class="cart-sidebar">
+        <div class="cart-header">
+            <h2 style="margin:0; font-size:1.2rem;">Tu Carrito</h2>
+            <button class="btn-close" onclick="toggleCarrito()">&times;</button>
+        </div>
+        
+        <div class="cart-body" id="lista-carrito">
+            </div>
+
+        <div class="cart-footer">
+            <div class="total-container">
+                <span>Total:</span>
+                <span id="total-monto">$0</span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="cupon-input" placeholder="¿Tenés un cupón de descuento?" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; text-transform: uppercase; font-family: inherit;">
+                <p id="cupon-mensaje" style="margin: 5px 0 0 0; font-size: 12px; font-weight: bold; display: none;"></p>
+            </div>
+
+            <div style="margin-bottom: 15px; border-top: 1px solid #222; padding-top: 15px;">
+                <input type="text" id="cliente-nombre" placeholder="Tu Nombre y Apellido" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; margin-bottom: 8px; font-family: inherit;">
+                <input type="tel" id="cliente-telefono" placeholder="Tu Teléfono (ej: 2604______)" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; font-family: inherit;">
+            </div>
+
+            <button class="btn-whatsapp" onclick="enviarWhatsApp()">Enviar Pedido por WhatsApp</button>
+        </div>
+    </div>
+
+    <div id="modal-detalle" class="modal" onclick="cerrarModal(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            <div id="modal-body">
+                </div>
+        </div>
+    </div>
+
+    <script src="productos.js"></script>
 </body>
 </html>
