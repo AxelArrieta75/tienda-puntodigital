@@ -35,11 +35,12 @@ body {
 .sticky-nav { position: sticky; top: 0; background: var(--negro); z-index: 100; padding: 10px 0; }
 .search-box { display: flex; justify-content: center; padding: 0 15px; margin-bottom: 10px; }
 
-/* Contenedor del Buscador con Botón Limpiar */
+/* AJUSTE FIJO: Contenedor del Buscador con Botón Limpiar perfectamente alineado */
 .search-wrapper {
     position: relative;
     width: 100%;
     max-width: 450px;
+    display: block; /* Forzamos a que no rompa el flujo */
 }
 #busqueda { 
     width: 100%; 
@@ -62,9 +63,10 @@ body {
     color: #666;
     font-size: 22px;
     cursor: pointer;
-    display: none; /* Se maneja con JS */
+    display: none; /* Se maneja dinámicamente con JS */
     line-height: 1;
     padding: 0;
+    z-index: 10;
 }
 #btn-limpiar-busqueda:hover { color: var(--amarillo); }
 
@@ -257,6 +259,6 @@ body {
     .modal-content { padding: 45px 15px 20px 15px; max-height: 92vh; overflow-y: auto; }
     .modal-layout-grid { grid-template-columns: 1fr; gap: 15px; }
     .modal-zoom-container { height: 200px; }
-    #toast-container { bottom: 95px; right: 15px; left: 15px; } /* Centrado fluido en mobile */
+    #toast-container { bottom: 95px; right: 15px; left: 15px; } 
     .toast-notif { font-size: 0.85rem; justify-content: center; }
 }
