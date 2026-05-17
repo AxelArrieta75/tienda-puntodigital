@@ -68,12 +68,12 @@ async function obtenerProductos() {
             for (let i = 0; i < fila.length; i++) {
                 let char = fila[i];
                 if (char === '"') {
-                    dentroDeComillas = !dentroDeComillas;
+                     dentroDeComillas = !dentroDeComillas;
                 } else if ((char === ',' || char === ';') && !dentroDeComillas) {
-                    columnas.push(celdaActual.trim());
-                    celdaActual = "";
+                     columnas.push(celdaActual.trim());
+                     celdaActual = "";
                 } else {
-                    celdaActual += char;
+                     celdaActual += char;
                 }
             }
             columnas.push(celdaActual.trim());
@@ -274,7 +274,6 @@ function verDetalle(nombre) {
     const modal = document.getElementById("modal-detalle");
     const body = document.getElementById("modal-body");
     
-    // Juntamos la principal con las extras limpias
     const todasLasImagenes = [p.imagen, ...p.imagenesExtra].filter(img => img && img.trim() !== "");
     
     let miniaturasHTML = "";
@@ -463,8 +462,9 @@ function cargarDatosCliente() {
     if (nombreGuardado && document.getElementById("cliente-nombre")) {
         document.getElementById("cliente-nombre").value = nombreGuardado;
     }
+    // CORREGIDO: Se reemplazó el typo 'telephoneGuardado' por la variable correcta 'telefonoGuardado'
     if (telefonoGuardado && document.getElementById("cliente-telefono")) {
-        document.getElementById("cliente-telefono").value = telephoneGuardado;
+        document.getElementById("cliente-telefono").value = telefonoGuardado;
     }
 }
 
@@ -479,6 +479,7 @@ function evaluarCupon() {
         descuentoAplicado = 0;
         cuponActivo = "";
         mensaje.style.display = "none";
+        actualizar();
         return;
     }
 
@@ -495,6 +496,8 @@ function evaluarCupon() {
         mensaje.style.color = "#ff3838";
         mensaje.style.display = "block";
     }
+    // Agregado: Actualiza los cálculos numéricos en tiempo real tras verificar el estado del código
+    actualizar(); 
 }
 
 function actualizar() {
@@ -512,7 +515,8 @@ function actualizar() {
                 <p style="font-size:12px; margin-top:5px; color:#555;">¡Aprovechá nuestras ofertas!</p>
             </div>
         `;
-        document.getElementById("total-monto").innerText = "$0";
+        const totalContenedor = document.getElementById("total-monto");
+        if (totalContenedor) totalContenedor.innerText = "$0";
         document.getElementById("cantidad-badge").innerText = "0";
         return;
     }
@@ -538,8 +542,23 @@ function actualizar() {
             </div>`;
     }).join('');
     
-    let totalCalculado = subtotal - (subtotal * descuentoAplicado);
-    document.getElementById("total-monto").innerText = "$" + totalCalculado.toLocaleString('es-AR');
+    let montoDescuento = subtotal * descuentoAplicado;
+    let totalCalculado = subtotal - montoDescuento;
+    const totalContenedor = document.getElementById("total-monto");
+
+    if (totalContenedor) {
+        if (descuentoAplicado > 0) {
+            // Renderizado detallado con desglose del descuento aplicado
+            totalContenedor.innerHTML = `
+                <div style="font-size: 13px; color: #aaa; text-decoration: line-through; font-weight: normal;">Subtotal: $${subtotal.toLocaleString('es-AR')}</div>
+                <div style="font-size: 13px; color: #25d366; font-weight: normal; margin-bottom: 4px;">Desc. (${descuentoAplicado * 100}%): -$${montoDescuento.toLocaleString('es-AR')}</div>
+                <div>$${totalCalculado.toLocaleString('es-AR')}</div>
+            `;
+        } else {
+            totalContenedor.innerText = "$" + totalCalculado.toLocaleString('es-AR');
+        }
+    }
+    
     document.getElementById("cantidad-badge").innerText = Math.max(0, carrito.reduce((acc, i) => acc + i.cantidad, 0));
 }
 
@@ -592,7 +611,7 @@ function enviarWhatsApp() {
     if (cuponActivo !== "") {
         m += `🎟️ *Cupón Aplicado:* ${cuponActivo} (-${descuentoAplicado * 100}%)%0A`;
     }
-    m += `*Total a Pagar: ${document.getElementById("total-monto").innerText}*`;
+    m += `*Total a Pagar: ${document.getElementById("total-monto").innerText.replace(/\n/g, ' ')}*`;
     
     window.open(`https://wa.me/5492604401898?text=${m}`);
 }
