@@ -14,23 +14,59 @@ body {
     overflow-x: hidden; 
 }
 
-.main-header { text-align: center; padding: 25px 20px 10px; }
+/* Header Estructurado */
+.main-header { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 25px 20px 10px; 
+}
 .logo-principal { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid var(--amarillo); background: #111; }
-.brand-name { color: var(--amarillo); margin: 8px 0 0 0; font-size: 2rem; font-weight: 700; }
+
+.brand-text-container {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+.brand-name { color: var(--amarillo); margin: 0; font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.brand-slogan { margin: 4px 0 0 0; font-size: 0.9rem; color: #aaa; font-weight: 400; }
 
 .sticky-nav { position: sticky; top: 0; background: var(--negro); z-index: 100; padding: 10px 0; }
 .search-box { display: flex; justify-content: center; padding: 0 15px; margin-bottom: 10px; }
+
+/* Contenedor del Buscador con Botón Limpiar */
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+}
 #busqueda { 
     width: 100%; 
-    max-width: 450px; 
-    padding: 12px 20px; 
+    padding: 12px 45px 12px 20px; 
     border-radius: 25px; 
     border: 1px solid #333; 
     background: #111; 
     color: white; 
     outline: none; 
     font-family: var(--fuente);
+    box-sizing: border-box;
 }
+#btn-limpiar-busqueda {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 22px;
+    cursor: pointer;
+    display: none; /* Se maneja con JS */
+    line-height: 1;
+    padding: 0;
+}
+#btn-limpiar-busqueda:hover { color: var(--amarillo); }
 
 .category-bar-double { 
     display: grid; 
@@ -64,6 +100,8 @@ body {
     gap: 15px; 
     padding: 15px; 
 }
+
+/* Efecto Vitrina en las Tarjetas */
 .card { 
     background: var(--gris); 
     padding: 12px; 
@@ -71,14 +109,21 @@ body {
     border: 1px solid #222; 
     text-align: center; 
     cursor: pointer; 
-    transition: 0.3s; 
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease, box-shadow 0.3s ease; 
     position: relative; 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow: hidden;
 }
-.card:hover { border-color: var(--amarillo); }
-.card img { width: 100%; height: 140px; object-fit: contain; background: white; border-radius: 10px; }
+.card:hover { 
+    transform: translateY(-6px);
+    border-color: var(--amarillo); 
+    box-shadow: 0 10px 20px rgba(255, 215, 0, 0.15);
+}
+.card img { width: 100%; height: 140px; object-fit: contain; background: white; border-radius: 10px; transition: transform 0.4s ease; }
+.card:hover img { transform: scale(1.06); }
+
 .card h3 { font-size: 0.95rem; margin: 10px 0 5px 0; font-weight: 500; color: #fff; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px; }
 .precio { color: var(--amarillo); font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; text-align: left; }
 .btn-add { background: var(--amarillo); border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: var(--fuente); }
@@ -88,19 +133,90 @@ body {
     font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; z-index: 10;
 }
 
+/* Carrito Flotante con Animación */
 #cart-float { 
     position: fixed; bottom: 25px; right: 25px; background: var(--amarillo); 
     width: 65px; height: 65px; border-radius: 50%; display: flex; 
     justify-content: center; align-items: center; cursor: pointer; 
     z-index: 1500; color: black; font-size: 1.5rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease;
+}
+#cart-float.rebote-anim { animation: pulsoPop 0.4s ease-in-out; }
+@keyframes pulsoPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3) rotate(-10deg); }
+    100% { transform: scale(1); }
 }
 #cantidad-badge { font-size: 1rem; font-weight: 800; margin-left: 5px; }
+
+/* Contenedor y Estilo de Alertas Toasts */
+#toast-container {
+    position: fixed;
+    bottom: 105px;
+    right: 25px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast-notif {
+    background: #111;
+    color: white;
+    border-left: 4px solid var(--amarillo);
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: entradaToast 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), salidaToast 0.3s ease 2.2s forwards;
+    pointer-events: auto;
+}
+@keyframes entradaToast {
+    from { transform: translateY(20px) scale(0.8); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes salidaToast {
+    from { transform: translateY(0) opacity: 1; }
+    to { transform: translateY(-20px) opacity: 0; }
+}
 
 .cart-sidebar { position: fixed; right: -100%; top: 0; width: 350px; height: 100%; background: #0a0a0a; transition: 0.4s; z-index: 2000; display: flex; flex-direction: column; }
 .cart-sidebar.open { right: 0; }
 .cart-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
 .btn-close { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+
+/* Botón Vaciar Carrito */
+.btn-vaciar {
+    background: none;
+    border: 1px solid #ff3838;
+    color: #ff3838;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.btn-vaciar:hover { background: #ff3838; color: white; }
+
+/* Caja de Carrito Vacío */
+.carrito-vacio-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+}
+.carrito-vacio-box span { font-size: 3rem; margin-bottom: 15px; }
+.carrito-vacio-box p { margin: 0; font-size: 0.95rem; }
+
 .cart-body { flex: 1; overflow-y: auto; padding: 15px; }
 .qty-btn { background: var(--amarillo); border: none; width: 28px; height: 28px; border-radius: 5px; font-weight: bold; cursor: pointer; margin: 0 8px; }
 
@@ -132,9 +248,15 @@ body {
 .btn-whatsapp { width: 100%; padding: 15px; background: var(--verde); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1rem; font-family: var(--fuente); }
 
 @media (max-width: 768px) {
+    .main-header { padding: 15px 10px 5px; gap: 10px; }
+    .logo-principal { width: 65px; height: 65px; }
+    .brand-name { font-size: 1.6rem; }
+    .brand-slogan { font-size: 0.8rem; }
     .products-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; padding: 10px; }
     .cart-sidebar { width: 100%; }
     .modal-content { padding: 45px 15px 20px 15px; max-height: 92vh; overflow-y: auto; }
     .modal-layout-grid { grid-template-columns: 1fr; gap: 15px; }
     .modal-zoom-container { height: 200px; }
+    #toast-container { bottom: 95px; right: 15px; left: 15px; } /* Centrado fluido en mobile */
+    .toast-notif { font-size: 0.85rem; justify-content: center; }
 }

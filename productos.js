@@ -6,6 +6,7 @@ let carrito = JSON.parse(localStorage.getItem("carrito_PD")) || [];
 let filtroCat = "Todos";
 let countdownInterval = null; 
 
+// CONFIGURACIÓN DE CUPONES (Editá o agregá acá tus códigos y porcentajes)
 const listaCupones = {
     "PUNTODIGITAL10": 0.10,
     "CLIENTEVIP": 0.15,
@@ -13,6 +14,14 @@ const listaCupones = {
 };
 let descuentoAplicado = 0;
 let cuponActivo = "";
+
+// CONFIGURACIÓN DE TU CUENTA BANCARIA / MERCADO PAGO
+const datosBancoPD = {
+    banco: "Lemon Cash",
+    alias: "punto.digital.sr",
+    cbu: "0000168300000026270629",
+    titular: "Axel Elias Arrieta"
+};
 
 const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_ptTrZ2OTWhfqb63EL20FS0MfLWFSQWkCEOpvTCEvK_27inAjKNJBenipvkAJQDD-jbqsnzpyy0KP/pub?output=csv";
 
@@ -45,15 +54,19 @@ async function obtenerProductos() {
         const respuesta = await fetch(urlCSV);
         const datos = await respuesta.text();
         
-        const filas = datos.split("\n").slice(1);
+        const filas = datos.split(/\r?\n/).slice(1);
+        
         productos = filas.map(fila => {
-            const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            
+            if (!fila.trim()) return null;
+
+            const columnas = fila.split(/(?:,|;)(?=(?:[^"]*"[^"]*")*[^"]*$)/);
             if (columnas.length < 4) return null;
+
+            const limpiar = (texto) => texto ? texto.replace(/^"|"$/g, "").trim() : "";
 
             let imgAdicionales = [];
             if (columnas[5] && columnas[5].trim() !== "") {
-                imgAdicionales = columnas[5].replace(/"/g, "").trim().split(";").filter(img => img !== "");
+                imgAdicionales = limpiar(columnas[5]).split(";").filter(img => img !== "");
             }
 
             let stockValor = null;
@@ -62,17 +75,18 @@ async function obtenerProductos() {
             }
 
             return {
-                nombre: columnas[0] ? columnas[0].replace(/"/g, "").trim() : "Producto",
+                nombre: limpiar(columnas[0]) || "Producto sin nombre",
                 precio: columnas[1] ? parseInt(columnas[1].replace(/\D/g, "")) : 0,
-                categoria: columnas[2] ? columnas[2].replace(/"/g, "").trim() : "Todos",
-                imagen: columnas[3] ? columnas[3].replace(/"/g, "").trim() : "",
-                descripcion: (columnas[4] && columnas[4].trim() !== "") ? columnas[4].replace(/"/g, "").trim() : "¡Excelente producto disponible en Punto Digital!",
+                categoria: limpiar(columnas[2]) || "Todos",
+                imagen: limpiar(columnas[3]),
+                descripcion: limpiar(columnas[4]) || "¡Excelente producto disponible en Punto Digital!",
                 imagenesExtra: imgAdicionales,
-                fechaOferta: (columnas[6] && columnas[6].trim() !== "") ? columnas[6].replace(/"/g, "").trim() : null,
+                fechaOferta: limpiar(columnas[6]) || null,
                 stock: stockValor
             };
         }).filter(p => p !== null && p.nombre !== "");
 
+        inyectarDatosBancoUI();
         cargarCategoriasUI();
         renderizar(productos);
         cargarDatosCliente(); 
@@ -83,7 +97,7 @@ async function obtenerProductos() {
 }
 
 // ==========================================
-// 3. FUNCIONES DE INTERFAZ (UI)
+// 3. FUNCIONES DE INTERFAZ Y BUSCADOR
 // ==========================================
 function cargarCategoriasUI() {
     const grid = document.getElementById("grid-categorias");
@@ -101,6 +115,21 @@ function setCat(c) {
     filtrar(); 
 }
 
+function comprobarOfertaActiva(fechaOfertaStr) {
+    if (!fechaOfertaStr) return false;
+    const partes = fechaOfertaStr.split('-');
+    if (partes.length !== 3) return false;
+    
+    const anio = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10) - 1;
+    const dia = parseInt(partes[2], 10);
+    
+    const fechaLimite = new Date(anio, mes, dia, 23, 59, 59);
+    const fechaActual = new Date();
+    
+    return fechaActual <= fechaLimite;
+}
+
 function renderizar(lista) {
     const cont = document.getElementById("contenedor-productos");
     if (!cont) return; 
@@ -112,7 +141,7 @@ function renderizar(lista) {
 
     cont.innerHTML = lista.map(p => {
         const rutaImg = p.imagen.startsWith('http') ? p.imagen : `img/${p.imagen}`;
-        const esOferta = p.fechaOferta && new Date(p.fechaOferta) > new Date();
+        const esOferta = comprobarOfertaActiva(p.fechaOferta);
         const badgeHTML = esOferta ? `<span class="card-badge-oferta">🔥 OFERTA</span>` : '';
         
         const sinStock = p.stock !== null && p.stock <= 0;
@@ -133,7 +162,15 @@ function renderizar(lista) {
 }
 
 function filtrar() {
-    const texto = document.getElementById("busqueda").value.toLowerCase();
+    const inputBusqueda = document.getElementById("busqueda");
+    const btnLimpiar = document.getElementById("btn-limpiar-busqueda");
+    const texto = inputBusqueda.value.toLowerCase();
+    
+    // Control visual del botón "X" para limpiar buscador
+    if (btnLimpiar) {
+        btnLimpiar.style.display = texto.length > 0 ? "block" : "none";
+    }
+
     const res = productos.filter(p => 
         (filtroCat === "Todos" || p.categoria === filtroCat) && 
         p.nombre.toLowerCase().includes(texto)
@@ -141,8 +178,17 @@ function filtrar() {
     renderizar(res);
 }
 
+function limpiarBuscador() {
+    const inputBusqueda = document.getElementById("busqueda");
+    if (inputBusqueda) {
+        inputBusqueda.value = "";
+        inputBusqueda.focus();
+    }
+    filtrar();
+}
+
 // ==========================================
-// 4. LÓGICA DEL CARRITO
+// 4. LÓGICA DEL CARRITO E INTERACCIONES
 // ==========================================
 function agregar(nombre) {
     const p = productos.find(i => i.nombre === nombre);
@@ -157,6 +203,9 @@ function agregar(nombre) {
     }
 
     if (ex) ex.cantidad++; else carrito.push({...p, cantidad: 1});
+    
+    animarBotonCarrito();
+    mostrarToastNotif(`¡Añadido: ${p.nombre.substring(0, 22)}...! 🛒`);
     actualizar();
 }
 
@@ -172,6 +221,67 @@ function cambiarCantidad(idx, valor) {
     itemCarrito.cantidad += valor;
     if (itemCarrito.cantidad <= 0) carrito.splice(idx, 1);
     actualizar();
+}
+
+function vaciarCarrito() {
+    if (carrito.length === 0) return;
+    if (confirm("¿Estás seguro de que querés vaciar por completo tu carrito?")) {
+        carrito = [];
+        actualizar();
+    }
+}
+
+function animarBotonCarrito() {
+    const btnFloat = document.getElementById("cart-float");
+    if (!btnFloat) return;
+    btnFloat.classList.remove("rebote-anim");
+    void btnFloat.offsetWidth; 
+    btnFloat.classList.add("rebote-anim");
+}
+
+function mostrarToastNotif(mensaje) {
+    const contenedor = document.getElementById("toast-container");
+    if (!contenedor) return;
+    
+    const toast = document.createElement("div");
+    toast.className = "toast-notif";
+    toast.innerHTML = `<span>✨</span> <span>${mensaje}</span>`;
+    
+    contenedor.appendChild(toast);
+    
+    // Lo removemos del DOM automáticamente tras terminar su animación de salida
+    setTimeout(() => { toast.remove(); }, 2500);
+}
+
+function alternarCampoDireccion() {
+    const metodo = document.getElementById("metodo-entrega").value;
+    const campoDireccion = document.getElementById("cliente-direccion");
+    if (!campoDireccion) return;
+
+    if (metodo === "envio") {
+        campoDireccion.style.display = "block";
+    } else {
+        campoDireccion.style.display = "none";
+    }
+}
+
+function inyectarDatosBancoUI() {
+    const txtBanco = document.getElementById("txt-datos-banco");
+    if (!txtBanco) return;
+    txtBanco.innerHTML = `
+        <strong>Banco:</strong> ${datosBancoPD.banco}<br>
+        <strong>Alias:</strong> ${datosBancoPD.alias}<br>
+        <strong>CBU:</strong> ${datosBancoPD.cbu}<br>
+        <strong>Titular:</strong> ${datosBancoPD.titular}
+    `;
+}
+
+function alternarDatosTransferencia() {
+    const metodoPago = document.getElementById("metodo-pago").value;
+    const boxTransferencia = document.getElementById("datos-transferencia-box");
+    if (!boxTransferencia) return;
+
+    boxTransferencia.style.display = metodoPago === "transferencia" ? "block" : "none";
 }
 
 // ==========================================
@@ -197,8 +307,7 @@ function verDetalle(nombre) {
     }
 
     let bannerOfertaHTML = "";
-    const esOfertaValida = p.fechaOferta && new Date(p.fechaOferta) > new Date();
-    
+    const esOfertaValida = comprobarOfertaActiva(p.fechaOferta);
     if (esOfertaValida) {
         bannerOfertaHTML = `
             <div class="modal-banner-oferta">
@@ -256,8 +365,13 @@ function cambiarFotoModal(elemento, urlNueva) {
     elemento.classList.add("active-thumb");
 }
 
-function iniciarContador(fechaFin) {
-    const destino = new Date(fechaFin + "T23:59:59").getTime(); 
+function iniciarContador(fechaFinStr) {
+    const partes = fechaFinStr.split('-');
+    const anio = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10) - 1;
+    const dia = parseInt(partes[2], 10);
+    
+    const destino = new Date(anio, mes, dia, 23, 59, 59).getTime(); 
     
     function actualizarReloj() {
         const ahora = new Date().getTime();
@@ -274,11 +388,11 @@ function iniciarContador(fechaFin) {
 
         const dias = Math.floor(totalDist / (1000 * 60 * 60 * 24));
         const horas = Math.floor((totalDist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((totalDist % (1000 * 60 * 60)) / (1000 * 60));
+        const minutos = Math.floor((totalDist % (1000 * 60 * 60)) / (1000 * 60));
         const segundos = Math.floor((totalDist % (1000 * 60)) / 1000);
 
         const textoDias = dias > 0 ? `${dias}d ` : "";
-        contenedorReloj.innerText = `${textoDias}${horas.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${segundos.toString().padStart(2, '0')}s`;
+        contenedorReloj.innerText = `${textoDias}${horas.toString().padStart(2, '0')}h ${minutos.toString().padStart(2, '0')}m ${segundos.toString().padStart(2, '0')}s`;
     }
     
     actualizarReloj();
@@ -344,45 +458,66 @@ function actualizar() {
     const listaUI = document.getElementById("lista-carrito");
     let subtotal = 0;
     
-    if (listaUI) {
-        listaUI.innerHTML = carrito.map((item, idx) => {
-            subtotal += item.precio * item.cantidad;
-            const rutaImg = item.imagen.startsWith('http') ? item.imagen : `img/${item.imagen}`;
-            return `
-                <div style="display:flex; align-items:center; gap:12px; background:#161616; padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #222;">
-                    <img src="${rutaImg}" style="width:50px; height:50px; background:white; border-radius:6px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/50'">
-                    <div style="flex:1">
-                        <h4 style="margin:0; font-size:13px; color:white;">${item.nombre}</h4>
-                        <div style="margin-top:8px; display:flex; align-items:center;">
-                            <button class="qty-btn" onclick="cambiarCantidad(${idx}, -1)">-</button>
-                            <span style="font-weight:bold; color:#FFD700; min-width:20px; text-align:center;">${item.cantidad}</span>
-                            <button class="qty-btn" onclick="cambiarCantidad(${idx}, 1)">+</button>
-                        </div>
-                    </div>
-                    <div style="text-align:right;">
-                        <div style="font-weight:bold; color:#FFD700; font-size:14px;">$${(item.precio * item.cantidad).toLocaleString('es-AR')}</div>
-                        <button onclick="cambiarCantidad(${idx}, -999)" style="background:none; border:none; color:#555; margin-top:5px; cursor:pointer;">Eliminar</button>
-                    </div>
-                </div>`;
-        }).join('');
+    if (!listaUI) return;
+
+    if (carrito.length === 0) {
+        listaUI.innerHTML = `
+            <div class="carrito-vacio-box">
+                <span>🛒</span>
+                <p>Tu carrito está vacío.</p>
+                <p style="font-size:12px; margin-top:5px; color:#555;">¡Aprovechá nuestras ofertas!</p>
+            </div>
+        `;
+        document.getElementById("total-monto").innerText = "$0";
+        document.getElementById("cantidad-badge").innerText = "0";
+        return;
     }
+    
+    listaUI.innerHTML = carrito.map((item, idx) => {
+        subtotal += item.precio * item.cantidad;
+        const rutaImg = item.imagen.startsWith('http') ? item.imagen : `img/${item.imagen}`;
+        return `
+            <div style="display:flex; align-items:center; gap:12px; background:#161616; padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #222;">
+                <img src="${rutaImg}" style="width:50px; height:50px; background:white; border-radius:6px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/50'">
+                <div style="flex:1">
+                    <h4 style="margin:0; font-size:13px; color:white;">${item.nombre}</h4>
+                    <div style="margin-top:8px; display:flex; align-items:center;">
+                        <button class="qty-btn" onclick="cambiarCantidad(${idx}, -1)">-</button>
+                        <span style="font-weight:bold; color:#FFD700; min-width:20px; text-align:center;">${item.cantidad}</span>
+                        <button class="qty-btn" onclick="cambiarCantidad(${idx}, 1)">+</button>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:bold; color:#FFD700; font-size:14px;">$${(item.precio * item.cantidad).toLocaleString('es-AR')}</div>
+                    <button onclick="cambiarCantidad(${idx}, -999)" style="background:none; border:none; color:#555; margin-top:5px; cursor:pointer;">Eliminar</button>
+                </div>
+            </div>`;
+    }).join('');
     
     let totalFinal = subtotal - (subtotal * descuentoAplicado);
     document.getElementById("total-monto").innerText = "$" + totalFinal.toLocaleString('es-AR');
-    document.getElementById("cantidad-badge").innerText = carrito.reduce((acc, i) => acc + i.cantidad, 0);
+    document.getElementById("cantidad-badge").innerText = Math.max(0, carrito.reduce((acc, i) => acc + i.cantidad, 0));
 }
 
 // ==========================================
-// 6. ENVÍO WHATSAPP
+// 6. ENVÍO WHATSAPP MEJORADO (CON ENTREGA Y PAGO)
 // ==========================================
 function enviarWhatsApp() {
     if (carrito.length === 0) return;
     
     const nombreCliente = document.getElementById("cliente-nombre").value.trim();
     const telefonoCliente = document.getElementById("cliente-telefono").value.trim();
+    const metodoEntrega = document.getElementById("metodo-entrega").value;
+    const direccionCliente = document.getElementById("cliente-direccion").value.trim();
+    const metodoPago = document.getElementById("metodo-pago").value;
 
     if (nombreCliente === "" || telefonoCliente === "") {
         alert("Por favor, completa tu Nombre y Teléfono antes de enviar el pedido.");
+        return;
+    }
+
+    if (metodoEntrega === "envio" && direccionCliente === "") {
+        alert("Por favor, ingresá la dirección para coordinar el envío a domicilio.");
         return;
     }
 
@@ -392,8 +527,23 @@ function enviarWhatsApp() {
     let m = `🛒 *NUEVO PEDIDO - PUNTO DIGITAL* %0A`;
     m += `👤 *Cliente:* ${nombreCliente}%0A`;
     m += `📞 *Teléfono:* ${telefonoCliente}%0A`;
-    m += `────────────────────%0A`;
     
+    // Entrega
+    if (metodoEntrega === "envio") {
+        m += `🚚 *Entrega:* Envío a Domicilio%0A`;
+        m += `📍 *Dirección:* ${direccionCliente}%0A`;
+    } else {
+        m += `🏬 *Entrega:* Retira en el Local%0A`;
+    }
+
+    // Pago
+    if (metodoPago === "transferencia") {
+        m += `💳 *Método de Pago:* Transferencia Bancaria%0A`;
+    } else {
+        m += `💵 *Método de Pago:* Efectivo%0A`;
+    }
+    
+    m += `────────────────────%0A`;
     carrito.forEach(i => m += `• ${i.cantidad}x ${i.nombre} ($${(i.precio*i.cantidad).toLocaleString('es-AR')})%0A`);
     m += `────────────────────%0A`;
     
