@@ -6,7 +6,7 @@ let carrito = JSON.parse(localStorage.getItem("carrito_PD")) || [];
 let filtroCat = "Todos";
 let countdownInterval = null; 
 
-// CONFIGURACIÓN DE CUPONES (Editá o agregá acá tus códigos y porcentajes)
+// CONFIGURACIÓN DE CUPONES
 const listaCupones = {
     "PUNTODIGITAL10": 0.10,
     "CLIENTEVIP": 0.15,
@@ -60,19 +60,43 @@ async function obtenerProductos() {
         productos = filas.map(fila => {
             if (!fila.trim()) return null;
 
-            const columnas = fila.split(/(?:,|;)(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+            // Procesador inteligente de CSV
+            const columnas = [];
+            let dentroDeComillas = false;
+            let celdaActual = "";
+
+            for (let i = 0; i < fila.length; i++) {
+                let char = fila[i];
+                if (char === '"') {
+                    dentroDeComillas = !dentroDeComillas;
+                } else if ((char === ',' || char === ';') && !dentroDeComillas) {
+                    columnas.push(celdaActual.trim());
+                    celdaActual = "";
+                } else {
+                    celdaActual += char;
+                }
+            }
+            columnas.push(celdaActual.trim());
+
             if (columnas.length < 4) return null;
 
             const limpiar = (texto) => texto ? texto.replace(/^"|"$/g, "").trim() : "";
 
+            // RECOLECCIÓN INDEPENDIENTE DE IMÁGENES EXTRAS
             let imgAdicionales = [];
-            if (columnas[5] && columnas[5].trim() !== "") {
-                imgAdicionales = limpiar(columnas[5]).split(";").filter(img => img !== "");
-            }
+            if (columnas[5] && columnas[5].trim() !== "") imgAdicionales.push(limpiar(columnas[5]));
+            if (columnas[6] && columnas[6].trim() !== "") imgAdicionales.push(limpiar(columnas[6]));
+            if (columnas[7] && columnas[7].trim() !== "") imgAdicionales.push(limpiar(columnas[7]));
+            
+            // Filtramos cualquier celda que haya quedado vacía
+            imgAdicionales = imgAdicionales.filter(img => img !== "" && img !== '""');
 
+            // Ajuste de índices para Fecha Oferta (Columna 8) y Stock (Columna 9)
+            let fechaOfertaValor = columnas[8] ? limpiar(columnas[8]) : null;
+            
             let stockValor = null;
-            if (columnas[7] && columnas[7].trim() !== "") {
-                stockValor = parseInt(columnas[7].replace(/\D/g, ""));
+            if (columnas[9] && columnas[9] !== "") {
+                stockValor = parseInt(columnas[9].replace(/\D/g, ""));
             }
 
             return {
@@ -82,7 +106,7 @@ async function obtenerProductos() {
                 imagen: limpiar(columnas[3]),
                 descripcion: limpiar(columnas[4]) || "¡Excelente producto disponible en Punto Digital!",
                 imagenesExtra: imgAdicionales,
-                fechaOferta: limpiar(columnas[6]) || null,
+                fechaOferta: fechaOfertaValor,
                 stock: stockValor
             };
         }).filter(p => p !== null && p.nombre !== "");
@@ -118,12 +142,20 @@ function setCat(c) {
 
 function comprobarOfertaActiva(fechaOfertaStr) {
     if (!fechaOfertaStr) return false;
-    const partes = fechaOfertaStr.split('-');
+    const formateada = fechaOfertaStr.replace(/\//g, "-");
+    const partes = formateada.split('-');
     if (partes.length !== 3) return false;
     
-    const anio = parseInt(partes[0], 10);
-    const mes = parseInt(partes[1], 10) - 1;
-    const dia = parseInt(partes[2], 10);
+    let anio, mes, dia;
+    if (partes[0].length === 4) { 
+        anio = parseInt(partes[0], 10);
+        mes = parseInt(partes[1], 10) - 1;
+        dia = parseInt(partes[2], 10);
+    } else { 
+        dia = parseInt(partes[0], 10);
+        mes = parseInt(partes[1], 10) - 1;
+        anio = parseInt(partes[2], 10);
+    }
     
     const fechaLimite = new Date(anio, mes, dia, 23, 59, 59);
     const fechaActual = new Date();
@@ -167,7 +199,6 @@ function filtrar() {
     const btnLimpiar = document.getElementById("btn-limpiar-busqueda");
     const texto = inputBusqueda.value.toLowerCase();
     
-    // Control visual del botón "X" para limpiar buscador
     if (btnLimpiar) {
         btnLimpiar.style.display = texto.length > 0 ? "block" : "none";
     }
@@ -232,59 +263,6 @@ function vaciarCarrito() {
     }
 }
 
-function animarBotonCarrito() {
-    const btnFloat = document.getElementById("cart-float");
-    if (!btnFloat) return;
-    btnFloat.classList.remove("rebote-anim");
-    void btnFloat.offsetWidth; 
-    btnFloat.classList.add("rebote-anim");
-}
-
-function mostrarToastNotif(mensaje) {
-    const contenedor = document.getElementById("toast-container");
-    if (!contenedor) return;
-    
-    const toast = document.createElement("div");
-    toast.className = "toast-notif";
-    toast.innerHTML = `<span>✨</span> <span>${mensaje}</span>`;
-    
-    contenedor.appendChild(toast);
-    
-    // Lo removemos del DOM automáticamente tras terminar su animación de salida
-    setTimeout(() => { toast.remove(); }, 2500);
-}
-
-function alternarCampoDireccion() {
-    const metodo = document.getElementById("metodo-entrega").value;
-    const campoDireccion = document.getElementById("cliente-direccion");
-    if (!campoDireccion) return;
-
-    if (metodo === "envio") {
-        campoDireccion.style.display = "block";
-    } else {
-        campoDireccion.style.display = "none";
-    }
-}
-
-function inyectarDatosBancoUI() {
-    const txtBanco = document.getElementById("txt-datos-banco");
-    if (!txtBanco) return;
-    txtBanco.innerHTML = `
-        <strong>Banco:</strong> ${datosBancoPD.banco}<br>
-        <strong>Alias:</strong> ${datosBancoPD.alias}<br>
-        <strong>CBU:</strong> ${datosBancoPD.cbu}<br>
-        <strong>Titular:</strong> ${datosBancoPD.titular}
-    `;
-}
-
-function alternarDatosTransferencia() {
-    const metodoPago = document.getElementById("metodo-pago").value;
-    const boxTransferencia = document.getElementById("datos-transferencia-box");
-    if (!boxTransferencia) return;
-
-    boxTransferencia.style.display = metodoPago === "transferencia" ? "block" : "none";
-}
-
 // ==========================================
 // 5. MODALES Y CUENTA REGRESIVA
 // ==========================================
@@ -296,10 +274,11 @@ function verDetalle(nombre) {
     const modal = document.getElementById("modal-detalle");
     const body = document.getElementById("modal-body");
     
-    const todasLasImagenes = [p.imagen, ...p.imagenesExtra];
+    // Juntamos la principal con las extras limpias
+    const todasLasImagenes = [p.imagen, ...p.imagenesExtra].filter(img => img && img.trim() !== "");
     
     let miniaturasHTML = "";
-    if (todasLasImagenes.length > 1 && p.imagenesExtra.length > 0) {
+    if (todasLasImagenes.length > 1) {
         miniaturasHTML = `<div class="modal-thumbnails">` + 
             todasLasImagenes.map((img, index) => {
                 const url = img.startsWith('http') ? img : `img/${img}`;
@@ -327,9 +306,9 @@ function verDetalle(nombre) {
             badgeStockHTML = `<p class="modal-escasez-badge" style="color:#ff3838;">❌ ¡Producto temporalmente agotado!</p>`;
             btnAccionHTML = `<button class="btn-add" style="padding:15px; font-size:1.1rem; margin-top:15px; background:#444; color:#aaa; cursor:not-allowed;" disabled>Agotado</button>`;
         } else if (p.stock <= 5) {
-            badgeStockHTML = `<p class="modal-escasez-badge">⚡ ¡Solo quedan ${p.stock} unidades!</p>`;
+            badgeStockHTML = `<p class="modal-escasez-badge">⚡ ¡Solo quedan ${p.stock} ${p.stock === 1 ? 'unidad' : 'unidades'}!</p>`;
         } else {
-            badgeStockHTML = `<p class="modal-escasez-badge" style="color:#25d366;">✅ Stock Disponible</p>`;
+            badgeStockHTML = `<p class="modal-escasez-badge" style="color:#25d366;">✅ Stock Disponible (${p.stock} un.)</p>`;
         }
     }
 
@@ -367,30 +346,39 @@ function cambiarFotoModal(elemento, urlNueva) {
 }
 
 function iniciarContador(fechaFinStr) {
-    const partes = fechaFinStr.split('-');
-    const anio = parseInt(partes[0], 10);
-    const mes = parseInt(partes[1], 10) - 1;
-    const dia = parseInt(partes[2], 10);
+    const formateada = fechaFinStr.replace(/\//g, "-");
+    const partes = formateada.split('-');
+    
+    let anio, mes, dia;
+    if (partes[0].length === 4) {
+        anio = parseInt(partes[0], 10);
+        mes = parseInt(partes[1], 10) - 1;
+        dia = parseInt(partes[2], 10);
+    } else {
+        dia = parseInt(partes[0], 10);
+        mes = parseInt(partes[1], 10) - 1;
+        anio = parseInt(partes[2], 10);
+    }
     
     const destino = new Date(anio, mes, dia, 23, 59, 59).getTime(); 
     
     function actualizarReloj() {
         const ahora = new Date().getTime();
-        const totalDist = destino - ahora;
+        const totalDistCalculada = destino - ahora;
         const contenedorReloj = document.getElementById("countdown-reloj");
         
         if (!contenedorReloj) return;
 
-        if (totalDist < 0) {
+        if (totalDistCalculada < 0) {
             contenedorReloj.innerText = "¡OFERTA TERMINADA!";
             clearInterval(countdownInterval);
             return;
         }
 
-        const dias = Math.floor(totalDist / (1000 * 60 * 60 * 24));
-        const horas = Math.floor((totalDist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutos = Math.floor((totalDist % (1000 * 60 * 60)) / (1000 * 60));
-        const segundos = Math.floor((totalDist % (1000 * 60)) / 1000);
+        const dias = Math.floor(totalDistCalculada / (1000 * 60 * 60 * 24));
+        const horas = Math.floor((totalDistCalculada % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutos = Math.floor((totalDistCalculada % (1000 * 60 * 60)) / (1000 * 60));
+        const segundos = Math.floor((totalDistCalculada % (1000 * 60)) / 1000);
 
         const textoDias = dias > 0 ? `${dias}d ` : "";
         contenedorReloj.innerText = `${textoDias}${horas.toString().padStart(2, '0')}h ${minutos.toString().padStart(2, '0')}m ${segundos.toString().padStart(2, '0')}s`;
@@ -413,6 +401,61 @@ function toggleCarrito() {
     document.getElementById("carrito-lateral").classList.toggle("open");
 }
 
+function animarBotonCarrito() {
+    const btnFloat = document.getElementById("cart-float");
+    if (!btnFloat) return;
+    btnFloat.classList.remove("rebote-anim");
+    void btnFloat.offsetWidth; 
+    btnFloat.classList.add("rebote-anim");
+}
+
+function mostrarToastNotif(mensaje) {
+    const contenedor = document.getElementById("toast-container");
+    if (!contenedor) return;
+    
+    const toast = document.createElement("div");
+    toast.className = "toast-notif";
+    toast.innerHTML = `<span>✨</span> <span>${mensaje}</span>`;
+    
+    contenedor.appendChild(toast);
+    
+    setTimeout(() => { toast.remove(); }, 2500);
+}
+
+function alternarCampoDireccion() {
+    const metodo = document.getElementById("metodo-entrega").value;
+    const campoDireccion = document.getElementById("cliente-direccion");
+    if (!campoDireccion) return;
+
+    if (metodo === "envio") {
+        campoDireccion.style.display = "block";
+    } else {
+        campoDireccion.style.display = "none";
+    }
+}
+
+// ==========================================
+// 6. DETALLES BANCARIOS Y CLIENTE
+// ==========================================
+function inyectarDatosBancoUI() {
+    const txtBanco = document.getElementById("txt-datos-banco");
+    if (!txtBanco) return;
+    txtBanco.innerHTML = `
+        <strong>Banco:</strong> ${datosBancoPD.banco}<br>
+        <strong>Alias:</strong> ${datosBancoPD.alias}<br>
+        <strong>CBU:</strong> ${datosBancoPD.cbu}<br>
+        <strong>Titular:</strong> ${datosBancoPD.titular}
+    `;
+}
+
+function alternarDatosTransferencia() {
+    const metodoPago = document.getElementById("metodo-pago").value;
+    const boxTransferencia = document.getElementById("datos-transferencia-box");
+    if (!boxTransferencia) return;
+
+    boxTransferencia.style.display = metodoPago === "transferencia" ? "block" : "none";
+}
+
 function cargarDatosCliente() {
     const nombreGuardado = localStorage.getItem("cliente_nombre_PD");
     const telefonoGuardado = localStorage.getItem("cliente_telefono_PD");
@@ -421,7 +464,7 @@ function cargarDatosCliente() {
         document.getElementById("cliente-nombre").value = nombreGuardado;
     }
     if (telefonoGuardado && document.getElementById("cliente-telefono")) {
-        document.getElementById("cliente-telefono").value = telefonoGuardado;
+        document.getElementById("cliente-telefono").value = telephoneGuardado;
     }
 }
 
@@ -495,24 +538,24 @@ function actualizar() {
             </div>`;
     }).join('');
     
-    let totalFinal = subtotal - (subtotal * descuentoAplicado);
-    document.getElementById("total-monto").innerText = "$" + totalFinal.toLocaleString('es-AR');
+    let totalCalculado = subtotal - (subtotal * descuentoAplicado);
+    document.getElementById("total-monto").innerText = "$" + totalCalculado.toLocaleString('es-AR');
     document.getElementById("cantidad-badge").innerText = Math.max(0, carrito.reduce((acc, i) => acc + i.cantidad, 0));
 }
 
 // ==========================================
-// 6. ENVÍO WHATSAPP MEJORADO (CON ENTREGA Y PAGO)
+// 7. ENVÍO WHATSAPP MEJORADO
 // ==========================================
 function enviarWhatsApp() {
     if (carrito.length === 0) return;
     
     const nombreCliente = document.getElementById("cliente-nombre").value.trim();
-    const telefonoCliente = document.getElementById("cliente-telefono").value.trim();
+    const telephoneCliente = document.getElementById("cliente-telefono").value.trim();
     const metodoEntrega = document.getElementById("metodo-entrega").value;
     const direccionCliente = document.getElementById("cliente-direccion").value.trim();
     const metodoPago = document.getElementById("metodo-pago").value;
 
-    if (nombreCliente === "" || telefonoCliente === "") {
+    if (nombreCliente === "" || telephoneCliente === "") {
         alert("Por favor, completa tu Nombre y Teléfono antes de enviar el pedido.");
         return;
     }
@@ -523,13 +566,12 @@ function enviarWhatsApp() {
     }
 
     localStorage.setItem("cliente_nombre_PD", nombreCliente);
-    localStorage.setItem("cliente_telefono_PD", telefonoCliente);
+    localStorage.setItem("cliente_telefono_PD", telephoneCliente);
 
     let m = `🛒 *NUEVO PEDIDO - PUNTO DIGITAL* %0A`;
     m += `👤 *Cliente:* ${nombreCliente}%0A`;
-    m += `📞 *Teléfono:* ${telefonoCliente}%0A`;
+    m += `📞 *Teléfono:* ${telephoneCliente}%0A`;
     
-    // Entrega
     if (metodoEntrega === "envio") {
         m += `🚚 *Entrega:* Envío a Domicilio%0A`;
         m += `📍 *Dirección:* ${direccionCliente}%0A`;
@@ -537,7 +579,6 @@ function enviarWhatsApp() {
         m += `🏬 *Entrega:* Retira en el Local%0A`;
     }
 
-    // Pago
     if (metodoPago === "transferencia") {
         m += `💳 *Método de Pago:* Transferencia Bancaria%0A`;
     } else {
@@ -557,18 +598,14 @@ function enviarWhatsApp() {
 }
 
 // ==========================================
-// 7. LISTENERS E INICIALIZACIÓN
+// 8. LISTENERS E INICIALIZACIÓN
 // ==========================================
 document.getElementById("busqueda").addEventListener("keyup", filtrar);
 
 document.addEventListener("DOMContentLoaded", () => {
     const cuponInput = document.getElementById("cupon-input");
     if (cuponInput) {
-        cuponInput.addEventListener("keyup", () => {
-            evaluarCupon();
-            actualizar();
-        });
+        cuponInput.addEventListener("keyup", evaluarCupon);
     }
+    obtenerProductos();
 });
-
-window.onload = obtenerProductos;
