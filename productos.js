@@ -10,7 +10,8 @@ let countdownInterval = null;
 const listaCupones = {
     "PUNTODIGITAL10": 0.10,
     "CLIENTEVIP": 0.15,
-    "BIENVENIDO5": 0.05
+    "BIENVENIDO5": 0.05,
+    "DIGITAL20": 0.20
 };
 let descuentoAplicado = 0;
 let cuponActivo = "";
