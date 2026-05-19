@@ -16,6 +16,9 @@ const listaCupones = {
 let descuentoAplicado = 0;
 let cuponActivo = "";
 
+// DESCUENTO AUTOMÁTICO PARA PRODUCTOS CON OFERTA ACTIVA (0.20 = 20%)
+const PORCENTAJE_OFERTA_BOMBA = 0.20; 
+
 // CONFIGURACIÓN DE TU CUENTA BANCARIA / MERCADO PAGO
 const datosBancoPD = {
     banco: "Lemon Cash",
@@ -163,6 +166,14 @@ function comprobarOfertaActiva(fechaOfertaStr) {
     return fechaActual <= fechaLimite;
 }
 
+// FUNCIÓN AUXILIAR: Obtiene el precio real aplicando descuento de oferta si corresponde
+function obtenerPrecioFinal(p) {
+    if (comprobarOfertaActiva(p.fechaOferta)) {
+        return Math.round(p.precio * (1 - PORCENTAJE_OFERTA_BOMBA));
+    }
+    return p.precio;
+}
+
 function renderizar(lista) {
     const cont = document.getElementById("contenedor-productos");
     if (!cont) return; 
@@ -177,6 +188,18 @@ function renderizar(lista) {
         const esOferta = comprobarOfertaActiva(p.fechaOferta);
         const badgeHTML = esOferta ? `<span class="card-badge-oferta">🔥 OFERTA</span>` : '';
         
+        // Renderizado dinámico de precios (Base tachado + Oferta abajo)
+        let precioHTML = `<div class="precio">$${p.precio.toLocaleString('es-AR')}</div>`;
+        if (esOferta) {
+            const precioRebajado = obtenerPrecioFinal(p);
+            precioHTML = `
+                <div class="precio-contenedor-stack" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 10px;">
+                    <span class="precio-original-tachado" style="font-size: 13px; color: #888; text-decoration: line-through;">$${p.precio.toLocaleString('es-AR')}</span>
+                    <span class="precio" style="font-size: 1.3rem; font-weight: bold; color: #FFD700; margin-top: 2px;">$${precioRebajado.toLocaleString('es-AR')}</span>
+                </div>
+            `;
+        }
+        
         const sinStock = p.stock !== null && p.stock <= 0;
         const btnHTML = sinStock 
             ? `<button class="btn-add" style="background:#444; color:#aaa; cursor:not-allowed;" disabled>Agotado</button>`
@@ -187,7 +210,7 @@ function renderizar(lista) {
                 ${badgeHTML}
                 <img src="${rutaImg}" onerror="this.src='https://via.placeholder.com/200'">
                 <h3>${p.nombre}</h3>
-                <div class="precio">$${p.precio.toLocaleString('es-AR')}</div>
+                ${precioHTML}
                 ${btnHTML}
             </div>
         `;
@@ -234,7 +257,16 @@ function agregar(nombre) {
         return;
     }
 
-    if (ex) ex.cantidad++; else carrito.push({...p, cantidad: 1});
+    if (ex) {
+        ex.cantidad++; 
+    } else {
+        // Almacenamos de manera explícita el precio con descuento calculado de la oferta
+        carrito.push({
+            ...p, 
+            precioCalculado: obtenerPrecioFinal(p), 
+            cantidad: 1
+        });
+    }
     
     animarBotonCarrito();
     mostrarToastNotif(`¡Añadido: ${p.nombre.substring(0, 22)}...! 🛒`);
@@ -286,12 +318,22 @@ function verDetalle(nombre) {
     }
 
     let bannerOfertaHTML = "";
+    let precioModalHTML = `<div class="modal-precio-tag">$${p.precio.toLocaleString('es-AR')}</div>`;
     const esOfertaValida = comprobarOfertaActiva(p.fechaOferta);
+    
     if (esOfertaValida) {
+        const precioRebajado = obtenerPrecioFinal(p);
         bannerOfertaHTML = `
             <div class="modal-banner-oferta">
                 <span>⏳ OFERTA POR TIEMPO LIMITADO:</span>
                 <div id="countdown-reloj" class="reloj">Calculando...</div>
+            </div>
+        `;
+        // Estructura interna del modal con desglose de la oferta tachada
+        precioModalHTML = `
+            <div class="modal-precio-contenedor-stack" style="display: flex; align-items: baseline; gap: 15px; margin-top: 5px;">
+                <span class="modal-precio-original-tachado" style="font-size: 1.1rem; color: #ff4d4d; text-decoration: line-through; font-weight: normal;">$${p.precio.toLocaleString('es-AR')}</span>
+                <span class="modal-precio-tag" style="margin: 0;">$${precioRebajado.toLocaleString('es-AR')}</span>
             </div>
         `;
         iniciarContador(p.fechaOferta);
@@ -325,7 +367,7 @@ function verDetalle(nombre) {
             <div class="modal-col-info">
                 <h2>${p.nombre}</h2>
                 ${bannerOfertaHTML}
-                <div class="modal-precio-tag">$${p.precio.toLocaleString('es-AR')}</div>
+                ${precioModalHTML}
                 ${badgeStockHTML}
                 <div class="modal-descripcion-contenedor">
                     <h3>Descripción</h3>
@@ -457,14 +499,13 @@ function alternarDatosTransferencia() {
 
 function cargarDatosCliente() {
     const nombreGuardado = localStorage.getItem("cliente_nombre_PD");
-    const telefonoGuardado = localStorage.getItem("cliente_telefono_PD");
+    const telephoneGuardado = localStorage.getItem("cliente_telefono_PD");
     
     if (nombreGuardado && document.getElementById("cliente-nombre")) {
         document.getElementById("cliente-nombre").value = nombreGuardado;
     }
-    // CORREGIDO: Se reemplazó el typo 'telephoneGuardado' por la variable correcta 'telefonoGuardado'
-    if (telefonoGuardado && document.getElementById("cliente-telefono")) {
-        document.getElementById("cliente-telefono").value = telefonoGuardado;
+    if (telephoneGuardado && document.getElementById("cliente-telefono")) {
+        document.getElementById("cliente-telefono").value = telephoneGuardado;
     }
 }
 
@@ -496,7 +537,6 @@ function evaluarCupon() {
         mensaje.style.color = "#ff3838";
         mensaje.style.display = "block";
     }
-    // Agregado: Actualiza los cálculos numéricos en tiempo real tras verificar el estado del código
     actualizar(); 
 }
 
@@ -522,7 +562,10 @@ function actualizar() {
     }
     
     listaUI.innerHTML = carrito.map((item, idx) => {
-        subtotal += item.precio * item.cantidad;
+        // Toma el precio unitario correspondiente (si vino de oferta o precio plano)
+        const precioUnitario = item.precioCalculado !== undefined ? item.precioCalculado : item.precio;
+        subtotal += precioUnitario * item.cantidad;
+        
         const rutaImg = item.imagen.startsWith('http') ? item.imagen : `img/${item.imagen}`;
         return `
             <div style="display:flex; align-items:center; gap:12px; background:#161616; padding:12px; border-radius:12px; margin-bottom:10px; border:1px solid #222;">
@@ -536,7 +579,7 @@ function actualizar() {
                     </div>
                 </div>
                 <div style="text-align:right;">
-                    <div style="font-weight:bold; color:#FFD700; font-size:14px;">$${(item.precio * item.cantidad).toLocaleString('es-AR')}</div>
+                    <div style="font-weight:bold; color:#FFD700; font-size:14px;">$${(precioUnitario * item.cantidad).toLocaleString('es-AR')}</div>
                     <button onclick="cambiarCantidad(${idx}, -999)" style="background:none; border:none; color:#555; margin-top:5px; cursor:pointer;">Eliminar</button>
                 </div>
             </div>`;
@@ -548,7 +591,6 @@ function actualizar() {
 
     if (totalContenedor) {
         if (descuentoAplicado > 0) {
-            // Renderizado detallado con desglose del descuento aplicado
             totalContenedor.innerHTML = `
                 <div style="font-size: 13px; color: #aaa; text-decoration: line-through; font-weight: normal;">Subtotal: $${subtotal.toLocaleString('es-AR')}</div>
                 <div style="font-size: 13px; color: #25d366; font-weight: normal; margin-bottom: 4px;">Desc. (${descuentoAplicado * 100}%): -$${montoDescuento.toLocaleString('es-AR')}</div>
@@ -605,7 +647,10 @@ function enviarWhatsApp() {
     }
     
     m += `────────────────────%0A`;
-    carrito.forEach(i => m += `• ${i.cantidad}x ${i.nombre} ($${(i.precio*i.cantidad).toLocaleString('es-AR')})%0A`);
+    carrito.forEach(i => {
+        const pUnit = i.precioCalculado !== undefined ? i.precioCalculado : i.precio;
+        m += `• ${i.cantidad}x ${i.nombre} ($${(pUnit*i.cantidad).toLocaleString('es-AR')})%0A`;
+    });
     m += `────────────────────%0A`;
     
     if (cuponActivo !== "") {
