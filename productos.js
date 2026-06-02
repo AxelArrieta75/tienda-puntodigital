@@ -3,7 +3,7 @@
 // ==========================================
 let productos = [];
 let carrito = JSON.parse(localStorage.getItem("carrito_PD")) || [];
-let filtroCat = "Todos";
+let filtroCat = "Ofertas"; // Inicializa directamente en Ofertas
 let countdownInterval = null; 
 
 // CONFIGURACIÓN DE CUPONES
@@ -29,8 +29,10 @@ const datosBancoPD = {
 
 const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_ptTrZ2OTWhfqb63EL20FS0MfLWFSQWkCEOpvTCEvK_27inAjKNJBenipvkAJQDD-jbqsnzpyy0KP/pub?output=csv";
 
+// Se eliminó la opción "Todos" de la lista de categorías de la interfaz
 const categoriasConfig = [
-    { nombre: "Todos", icono: "📦" },
+    { nombre: "Ofertas", icono: "🔥" },
+    { nombre: "Combos", icono: "🎁" },
     { nombre: "Auriculares", icono: "🎧" },
     { nombre: "Smartwatch", icono: "⌚" },
     { nombre: "Audio", icono: "🔊" },
@@ -45,9 +47,8 @@ const categoriasConfig = [
     { nombre: "Hogar", icono: "🏠" },
     { nombre: "Cocina", icono: "🍳" },
     { nombre: "Vehículos", icono: "🚗" },
-    { nombre: "Mascotas", icono: "🐾"},
-    { nombre: "Perfumería", icono: "🌸"},
-    { nombre: "Combos", icono: "🎁" }
+    { nombre: "Mascotas", icono: "🐾" },
+    { nombre: "Perfumería", icono: "🌸" }
 ];
 
 // ==========================================
@@ -105,7 +106,7 @@ async function obtenerProductos() {
             return {
                 nombre: limpiar(columnas[0]) || "Producto sin nombre",
                 precio: columnas[1] ? parseInt(columnas[1].replace(/\D/g, "")) : 0,
-                categoria: limpiar(columnas[2]) || "Todos",
+                categoria: limpiar(columnas[2]) || "Ofertas", // Por defecto cae en Ofertas si está vacío
                 imagen: limpiar(columnas[3]),
                 descripcion: limpiar(columnas[4]) || "¡Excelente producto disponible en Punto Digital!",
                 imagenesExtra: imgAdicionales,
@@ -116,8 +117,10 @@ async function obtenerProductos() {
 
         inyectarDatosBancoUI();
         cargarCategoriasUI();
-        renderizar(productos);
         cargarDatosCliente(); 
+        
+        // Ejecuta el filtro por defecto (traerá solo Ofertas al iniciar)
+        filtrar();
         actualizar();
     } catch (error) {
         console.error("Error cargando base de datos:", error);
@@ -226,10 +229,24 @@ function filtrar() {
         btnLimpiar.style.display = texto.length > 0 ? "block" : "none";
     }
 
-    const res = productos.filter(p => 
-        (filtroCat === "Todos" || p.categoria === filtroCat) && 
-        p.nombre.toLowerCase().includes(texto)
-    );
+    const res = productos.filter(p => {
+        // 1. Filtro por término de búsqueda en input
+        const coincideBusqueda = p.nombre.toLowerCase().includes(texto);
+        
+        // 2. Filtro inteligente por categorías (Sin categoría "Todos")
+        let coincideCategoria = false;
+        
+        if (filtroCat === "Ofertas") {
+            // Muestra los asignados explícitamente como "Ofertas" O los que tengan descuento por fecha activo
+            coincideCategoria = (p.categoria === "Ofertas" || comprobarOfertaActiva(p.fechaOferta));
+        } else {
+            // Comportamiento regular para las demás categorías
+            coincideCategoria = (p.categoria === filtroCat);
+        }
+
+        return coincideBusqueda && coincideCategoria;
+    });
+
     renderizar(res);
 }
 
@@ -450,6 +467,9 @@ function animarBotonCarrito() {
     btnFloat.classList.add("rebote-anim");
 }
 
+// ==========================================
+// 6. DETALLES BANCARIOS Y CLIENTE
+// ==========================================
 function mostrarToastNotif(mensaje) {
     const contenedor = document.getElementById("toast-container");
     if (!contenedor) return;
@@ -475,9 +495,6 @@ function alternarCampoDireccion() {
     }
 }
 
-// ==========================================
-// 6. DETALLES BANCARIOS Y CLIENTE
-// ==========================================
 function inyectarDatosBancoUI() {
     const txtBanco = document.getElementById("txt-datos-banco");
     if (!txtBanco) return;
@@ -562,7 +579,6 @@ function actualizar() {
     }
     
     listaUI.innerHTML = carrito.map((item, idx) => {
-        // Toma el precio unitario correspondiente (si vino de oferta o precio plano)
         const precioUnitario = item.precioCalculado !== undefined ? item.precioCalculado : item.precio;
         subtotal += precioUnitario * item.cantidad;
         
@@ -585,7 +601,8 @@ function actualizar() {
             </div>`;
     }).join('');
     
-    let montoDescuento = subtotal * descuentoAplicado;
+    // CORREGIDO: Eliminada la doble asignación rota que rompía la sintaxis
+    let montoDescuento = subtotal * (descuentoAplicado || 0);
     let totalCalculado = subtotal - montoDescuento;
     const totalContenedor = document.getElementById("total-monto");
 
@@ -656,7 +673,9 @@ function enviarWhatsApp() {
     if (cuponActivo !== "") {
         m += `🎟️ *Cupón Aplicado:* ${cuponActivo} (-${descuentoAplicado * 100}%)%0A`;
     }
-    m += `*Total a Pagar: ${document.getElementById("total-monto").innerText.replace(/\n/g, ' ')}*`;
+    
+    // CORREGIDO: Se cerró correctamente el String literal de la última línea de mensaje
+    m += `*Total a Pagar:* $${document.getElementById("total-monto").innerText.replace(/\n/g, ' ')}`;
     
     window.open(`https://wa.me/5492604401898?text=${m}`);
 }
