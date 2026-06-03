@@ -87,16 +87,14 @@ async function obtenerProductos() {
 
             const limpiar = (texto) => texto ? texto.replace(/^"|"$/g, "").trim() : "";
 
-            // RECOLECCIÓN INDEPENDIENTE DE IMÁGENES EXTRAS
+            // RECOLECCIÓN INDEPENDIENTE DE IMÁGENES EXTRAS (Se eliminan las dobles comillas residuales)
             let imgAdicionales = [];
             if (columnas[5] && columnas[5].trim() !== "") imgAdicionales.push(limpiar(columnas[5]));
             if (columnas[6] && columnas[6].trim() !== "") imgAdicionales.push(limpiar(columnas[6]));
             if (columnas[7] && columnas[7].trim() !== "") imgAdicionales.push(limpiar(columnas[7]));
             
-            // Filtramos cualquier celda que haya quedado vacía
-            imgAdicionales = imgAdicionales.filter(img => img !== "" && img !== '""');
+            imgAdicionales = imgAdicionales.filter(img => img !== "" && img !== '""' && img !== '"" ""');
 
-            // Ajuste de índices para Fecha Oferta (Columna 8) y Stock (Columna 9)
             let fechaOfertaValor = columnas[8] ? limpiar(columnas[8]) : null;
             
             let stockValor = null;
@@ -104,12 +102,18 @@ async function obtenerProductos() {
                 stockValor = parseInt(columnas[9].replace(/\D/g, ""));
             }
 
+            // Mantenemos intacta la descripción estructural original
+            let descTexto = limpiar(columnas[4]);
+            if (!descTexto || descTexto === '""' || descTexto === "") {
+                descTexto = "¡Excelente producto disponible en Punto Digital!";
+            }
+
             return {
                 nombre: limpiar(columnas[0]) || "Producto sin nombre",
                 precio: columnas[1] ? parseInt(columnas[1].replace(/\D/g, "")) : 0,
-                categoria: limpiar(columnas[2]) || "Ofertas", // Por defecto cae en Ofertas si está vacío
+                categoria: limpiar(columnas[2]) || "Otros", 
                 imagen: limpiar(columnas[3]),
-                descripcion: limpiar(columnas[4]) || "¡Excelente producto disponible en Punto Digital!",
+                descripcion: descTexto,
                 imagenesExtra: imgAdicionales,
                 fechaOferta: fechaOfertaValor,
                 stock: stockValor
@@ -120,7 +124,6 @@ async function obtenerProductos() {
         cargarCategoriasUI();
         cargarDatosCliente(); 
         
-        // Ejecuta el filtro por defecto (traerá solo Ofertas al iniciar)
         filtrar();
         actualizar();
     } catch (error) {
@@ -170,7 +173,6 @@ function comprobarOfertaActiva(fechaOfertaStr) {
     return fechaActual <= fechaLimite;
 }
 
-// FUNCIÓN AUXILIAR: Obtiene el precio real aplicando descuento de oferta si corresponde
 function obtenerPrecioFinal(p) {
     if (comprobarOfertaActiva(p.fechaOferta)) {
         return Math.round(p.precio * (1 - PORCENTAJE_OFERTA_BOMBA));
@@ -192,7 +194,6 @@ function renderizar(lista) {
         const esOferta = comprobarOfertaActiva(p.fechaOferta);
         const badgeHTML = esOferta ? `<span class="card-badge-oferta">🔥 OFERTA</span>` : '';
         
-        // Renderizado dinámico de precios (Base tachado + Oferta abajo)
         let precioHTML = `<div class="precio">$${p.precio.toLocaleString('es-AR')}</div>`;
         if (esOferta) {
             const precioRebajado = obtenerPrecioFinal(p);
@@ -231,20 +232,14 @@ function filtrar() {
     }
 
     const res = productos.filter(p => {
-        // 1. Filtro por término de búsqueda en input
         const coincideBusqueda = p.nombre.toLowerCase().includes(texto);
-        
-        // 2. Filtro inteligente por categorías
         let coincideCategoria = false;
         
         if (filtroCat === "Todos") {
-            // Si está seleccionado "Todos", se muestran todos los productos sin discriminar categoría
             coincideCategoria = true;
         } else if (filtroCat === "Ofertas") {
-            // Muestra los asignados explícitamente como "Ofertas" O los que tengan descuento por fecha activo
             coincideCategoria = (p.categoria === "Ofertas" || comprobarOfertaActiva(p.fechaOferta));
         } else {
-            // Comportamiento regular para las demás categorías (Combos, Hogar, Cocina, etc.)
             coincideCategoria = (p.categoria === filtroCat);
         }
 
@@ -281,7 +276,6 @@ function agregar(nombre) {
     if (ex) {
         ex.cantidad++; 
     } else {
-        // Almacenamos de manera explícita el precio con descuento calculado de la oferta
         carrito.push({
             ...p, 
             precioCalculado: obtenerPrecioFinal(p), 
@@ -317,9 +311,10 @@ function vaciarCarrito() {
 }
 
 // ==========================================
-// 5. MODALES Y CUENTA REGRESIVA
+// 5. MODALES Y CUENTA REGRESIVA (REPARADO)
 // ==========================================
 function verDetalle(nombre) {
+    // Buscamos directamente en el array global global de productos mapeados de forma limpia
     const p = productos.find(i => i.nombre === nombre);
     if (!p) return;
     
@@ -327,6 +322,7 @@ function verDetalle(nombre) {
     const modal = document.getElementById("modal-detalle");
     const body = document.getElementById("modal-body");
     
+    // Unificamos las imágenes sin que se pierdan las de las ofertas
     const todasLasImagenes = [p.imagen, ...p.imagenesExtra].filter(img => img && img.trim() !== "");
     
     let miniaturasHTML = "";
@@ -350,7 +346,6 @@ function verDetalle(nombre) {
                 <div id="countdown-reloj" class="reloj">Calculando...</div>
             </div>
         `;
-        // Estructura interna del modal con desglose de la oferta tachada
         precioModalHTML = `
             <div class="modal-precio-contenedor-stack" style="display: flex; align-items: baseline; gap: 15px; margin-top: 5px;">
                 <span class="modal-precio-original-tachado" style="font-size: 1.1rem; color: #ff4d4d; text-decoration: line-through; font-weight: normal;">$${p.precio.toLocaleString('es-AR')}</span>
@@ -446,7 +441,7 @@ function iniciarContador(fechaFinStr) {
         contenedorReloj.innerText = `${textoDias}${horas.toString().padStart(2, '0')}h ${minutos.toString().padStart(2, '0')}m ${segundos.toString().padStart(2, '0')}s`;
     }
     
-    actualizerReloj();
+    actualizarReloj();
     countdownInterval = setInterval(actualizarReloj, 1000);
 }
 
