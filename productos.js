@@ -29,12 +29,16 @@ const datosBancoPD = {
 
 const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_ptTrZ2OTWhfqb63EL20FS0MfLWFSQWkCEOpvTCEvK_27inAjKNJBenipvkAJQDD-jbqsnzpyy0KP/pub?output=csv";
 
-// Se eliminó la opción "Todos" de la lista de categorías de la interfaz
+// Lista ordenada: Ofertas primero, Todos en segundo lugar, seguidos por Combos, Hogar y Cocina
 const categoriasConfig = [
     { nombre: "Ofertas", icono: "🔥" },
+    { nombre: "Todos", icono: "🌐" },
     { nombre: "Combos", icono: "🎁" },
-    { nombre: "Auriculares", icono: "🎧" },
+    { nombre: "Hogar", icono: "🏠" },
+    { nombre: "Cocina", icono: "🍳" },
+    { nombre: "Celulares", icono: "📱" },
     { nombre: "Smartwatch", icono: "⌚" },
+    { nombre: "Auriculares", icono: "🎧" },
     { nombre: "Audio", icono: "🔊" },
     { nombre: "Gaming", icono: "🎮" },
     { nombre: "Herramientas", icono: "🛠️" },
@@ -43,9 +47,6 @@ const categoriasConfig = [
     { nombre: "Termos", icono: "🧉" },
     { nombre: "Juguetes", icono: "🧸" },
     { nombre: "Belleza", icono: "✨" },
-    { nombre: "Celulares", icono: "📱" },
-    { nombre: "Hogar", icono: "🏠" },
-    { nombre: "Cocina", icono: "🍳" },
     { nombre: "Vehículos", icono: "🚗" },
     { nombre: "Mascotas", icono: "🐾" },
     { nombre: "Perfumería", icono: "🌸" }
@@ -233,14 +234,17 @@ function filtrar() {
         // 1. Filtro por término de búsqueda en input
         const coincideBusqueda = p.nombre.toLowerCase().includes(texto);
         
-        // 2. Filtro inteligente por categorías (Sin categoría "Todos")
+        // 2. Filtro inteligente por categorías
         let coincideCategoria = false;
         
-        if (filtroCat === "Ofertas") {
+        if (filtroCat === "Todos") {
+            // Si está seleccionado "Todos", se muestran todos los productos sin discriminar categoría
+            coincideCategoria = true;
+        } else if (filtroCat === "Ofertas") {
             // Muestra los asignados explícitamente como "Ofertas" O los que tengan descuento por fecha activo
             coincideCategoria = (p.categoria === "Ofertas" || comprobarOfertaActiva(p.fechaOferta));
         } else {
-            // Comportamiento regular para las demás categorías
+            // Comportamiento regular para las demás categorías (Combos, Hogar, Cocina, etc.)
             coincideCategoria = (p.categoria === filtroCat);
         }
 
@@ -442,7 +446,7 @@ function iniciarContador(fechaFinStr) {
         contenedorReloj.innerText = `${textoDias}${horas.toString().padStart(2, '0')}h ${minutos.toString().padStart(2, '0')}m ${segundos.toString().padStart(2, '0')}s`;
     }
     
-    actualizarReloj();
+    actualizerReloj();
     countdownInterval = setInterval(actualizarReloj, 1000);
 }
 
@@ -601,7 +605,6 @@ function actualizar() {
             </div>`;
     }).join('');
     
-    // CORREGIDO: Eliminada la doble asignación rota que rompía la sintaxis
     let montoDescuento = subtotal * (descuentoAplicado || 0);
     let totalCalculado = subtotal - montoDescuento;
     const totalContenedor = document.getElementById("total-monto");
@@ -674,7 +677,6 @@ function enviarWhatsApp() {
         m += `🎟️ *Cupón Aplicado:* ${cuponActivo} (-${descuentoAplicado * 100}%)%0A`;
     }
     
-    // CORREGIDO: Se cerró correctamente el String literal de la última línea de mensaje
     m += `*Total a Pagar:* $${document.getElementById("total-monto").innerText.replace(/\n/g, ' ')}`;
     
     window.open(`https://wa.me/5492604401898?text=${m}`);
