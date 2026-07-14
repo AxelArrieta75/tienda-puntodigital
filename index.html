@@ -9,76 +9,72 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <button class="btn-menu-lateral" onclick="document.getElementById('side-nav').classList.add('open')">☰</button>
 
-<nav id="side-nav" class="nav-sidebar">
-    <button class="btn-cerrar-menu" onclick="document.getElementById('side-nav').classList.remove('open')">&times;</button>
-    <ul>
-<!-- 1. Inicio (Ofertas) -->
-            <li><a href="#" onclick="mostrarOfertas()">Inicio (Ofertas)</a></li>
+    <nav id="side-nav" class="nav-sidebar">
+        <button class="btn-cerrar-menu" onclick="document.getElementById('side-nav').classList.remove('open')">&times;</button>
+        <ul>
+            <!-- 1. Inicio (Ofertas) -->
+            <li><span onclick="mostrarOfertas()" style="cursor: pointer;">Inicio (Ofertas)</span></li>
             
             <!-- 2. Todos -->
-            <li><a href="#" onclick="mostrarTodo()">Todos los productos</a></li>
+            <li><span onclick="mostrarTodo()" style="cursor: pointer;">Todos los productos</span></li>
             
             <!-- 3. Productos (Categorías) -->
             <li>
-                <a href="#" onclick="toggleSubmenu()">Productos ▼</a>
+                <span onclick="toggleSubmenu()" style="cursor: pointer;">Productos ▼</span>
                 <ul id="submenu-productos" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px;">
-                    <!-- Cambia las llamadas para que coincidan con la categoría real -->
-                     <!-- Cambia las llamadas para que coincidan con la categoría real -->
-<li><a href="#" onclick="filtrarCategoria('Gaming')">Gaming</a></li>
-<li><a href="#" onclick="filtrarCategoria('Celulares')">Celulares</a></li>
-<li><a href="#" onclick="filtrarCategoria('Hogar')">Hogar</a></li>
-<li><a href="#" onclick="filtrarCategoria('Herramientas')">Herramientas</a></li>
-<li><a href="#" onclick="filtrarCategoria('Cocina')">Cocina</a></li>
-<li><a href="#" onclick="filtrarCategoria('Auriculares')">Auriculares</a></li>
-<li><a href="#" onclick="filtrarCategoria('Audio')">Audio</a></li>
-<li><a href="#" onclick="filtrarCategoria('Smartwatch')">Smartwatch</a></li>
-<li><a href="#" onclick="filtrarCategoria('Memorias')">Memorias</a></li>
-<li><a href="#" onclick="filtrarCategoria('Termos')">Termos</a></li>
-<li><a href="#" onclick="filtrarCategoria('Belleza')">Belleza</a></li>
-<li><a href="#" onclick="filtrarCategoria('Juguetes')">Juguetes</a></li>
-<li><a href="#" onclick="filtrarCategoria('Vehículos')">Vehículos</a></li>
-<li><a href="#" onclick="filtrarCategoria('Camping')">Camping</a></li>
-<li><a href="#" onclick="filtrarCategoria('Perfumería')">Perfumería</a></li>
-<li><a href="#" onclick="filtrarCategoria('Mascotas')">Mascotas</a></li>
-
+                    <li><span onclick="filtrarCategoria('Gaming')" style="cursor: pointer;">Gaming</span></li>
+                    <li><span onclick="filtrarCategoria('Celulares')" style="cursor: pointer;">Celulares</span></li>
+                    <li><span onclick="filtrarCategoria('Hogar')" style="cursor: pointer;">Hogar</span></li>
+                    <li><span onclick="filtrarCategoria('Herramientas')" style="cursor: pointer;">Herramientas</span></li>
+                    <li><span onclick="filtrarCategoria('Cocina')" style="cursor: pointer;">Cocina</span></li>
+                    <li><span onclick="filtrarCategoria('Auriculares')" style="cursor: pointer;">Auriculares</span></li>
+                    <li><span onclick="filtrarCategoria('Audio')" style="cursor: pointer;">Audio</span></li>
+                    <li><span onclick="filtrarCategoria('Smartwatch')" style="cursor: pointer;">Smartwatch</span></li>
+                    <li><span onclick="filtrarCategoria('Memorias')" style="cursor: pointer;">Memorias</span></li>
+                    <li><span onclick="filtrarCategoria('Termos')" style="cursor: pointer;">Termos</span></li>
+                    <li><span onclick="filtrarCategoria('Belleza')" style="cursor: pointer;">Belleza</span></li>
+                    <li><span onclick="filtrarCategoria('Juguetes')" style="cursor: pointer;">Juguetes</span></li>
+                    <li><span onclick="filtrarCategoria('Vehículos')" style="cursor: pointer;">Vehículos</span></li>
+                    <li><span onclick="filtrarCategoria('Camping')" style="cursor: pointer;">Camping</span></li>
+                    <li><span onclick="filtrarCategoria('Perfumería')" style="cursor: pointer;">Perfumería</span></li>
+                    <li><span onclick="filtrarCategoria('Mascotas')" style="cursor: pointer;">Mascotas</span></li>
                 </ul>
             </li>
             
             <!-- 4. Contacto -->
-<!-- En lugar de la línea anterior de Contacto, pon esto: -->
-<li>
-    <a href="#" onclick="toggleSubmenuContacto()">Contacto ▼</a>
-    <ul id="submenu-contacto" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px; padding-bottom: 10px;">
-        <li style="margin-top: 10px; color: #aaa;">📱 Instagram: @puntodigital.sr</li>
-        <li style="margin-top: 5px; color: #aaa;">📘 Facebook: Punto Digital</li>
-        <li style="margin-top: 5px; color: #aaa;">📧 mail: puntodigital.lat@gmail.com</li>
-        <li style="margin-top: 10px;">
-            <a href="https://wa.me/5492604401898" target="_blank" style="color: #25d366; font-weight: bold;">💬 WhatsApp: 2604401898</a>
-        </li>
-    </ul>
-</li>
-</nav>
-   
- <!-- ESTA ES LA ESTRUCTURA ÚNICA -->
-<div class="header-fijo">
-    <!-- Logo y Título -->
-    <header class="main-header">
-        <img src="img/logo.png" alt="Logo" class="logo-principal">
-        <div class="brand-text-container">
-            <h1 class="brand-name">Punto Digital</h1>
-            <p class="brand-slogan">Tu mundo digital, en un punto.</p>
-        </div>
-    </header>
-
-    <!-- Buscador (Solo uno) -->
-    <nav class="sticky-nav">
-        <div class="search-box">
-            <input type="text" id="busqueda" placeholder="¿Qué estás buscando hoy?">
-        </div>
+            <li>
+                <span onclick="toggleSubmenuContacto()" style="cursor: pointer;">Contacto ▼</span>
+                <ul id="submenu-contacto" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px; padding-bottom: 10px;">
+                    <li style="margin-top: 10px; color: #aaa;">📱 Instagram: @puntodigital.sr</li>
+                    <li style="margin-top: 5px; color: #aaa;">📘 Facebook: Punto Digital</li>
+                    <li style="margin-top: 5px; color: #aaa;">📧 mail: puntodigital.lat@gmail.com</li>
+                    <li style="margin-top: 10px;">
+                        <a href="https://wa.me/5492604401898" target="_blank" style="color: #25d366; font-weight: bold; text-decoration: none;">💬 WhatsApp: 2604401898</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
     </nav>
-</div>
+   
+    <div class="header-fijo">
+        <header class="main-header">
+            <img src="img/logo.png" alt="Logo" class="logo-principal">
+            <div class="brand-text-container">
+                <h1 class="brand-name">Punto Digital</h1>
+                <p class="brand-slogan">Tu mundo digital, en un punto.</p>
+            </div>
+        </header>
+
+        <nav class="sticky-nav">
+            <div class="search-box">
+                <input type="text" id="busqueda" placeholder="¿Qué estás buscando hoy?">
+            </div>
+        </nav>
+    </div>
+
     </header>
 
     <!-- Solo un main, justo después del nav -->
@@ -148,6 +144,6 @@
         </div>
     </div>
 
-    <script src="productos.js?v=1.3"></script>
+    <script src="productos.js"></script>
 </body>
 </html>
