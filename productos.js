@@ -725,3 +725,8 @@ function toggleSubmenu() {
         submenu.style.display = 'none';
     }
 }
+// En lugar de comparar p.categoria === filtroCat, usa esto:
+let catProducto = p.categoria.trim().toLowerCase();
+let catFiltro = filtroCat.trim().toLowerCase();
+
+let coincideCategoria = (filtroCat === "Todos") || (catProducto === catFiltro);
