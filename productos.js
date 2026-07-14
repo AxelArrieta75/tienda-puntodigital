@@ -677,6 +677,26 @@ function enviarWhatsApp() {
     window.open(`https://wa.me/5492604401898?text=${m}`);
 }
 
+// Función para mostrar solo Ofertas
+function mostrarOfertas() {
+    filtroCat = "Ofertas"; // Esto activa la condición de tu línea 240
+    document.getElementById("busqueda").value = ""; 
+    filtrar(); 
+    document.getElementById('side-nav').classList.remove('open');
+}
+
+// Función para mostrar TODO el catálogo
+function mostrarTodo() {
+    filtroCat = "Todos"; 
+    document.getElementById("busqueda").value = ""; 
+    filtrar(); 
+    document.getElementById('side-nav').classList.remove('open');
+}
+
+function toggleSubmenuContacto() {
+    const submenu = document.getElementById("submenu-contacto");
+    submenu.style.display = (submenu.style.display === "none") ? "block" : "none";
+}
 // ==========================================
 // 8. LISTENERS E INICIALIZACIÓN
 // ==========================================
@@ -689,3 +709,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     obtenerProductos();
 });
+// Añadir esto al final de productos.js para conectar el menú con tu filtro actual
+function filtrarCategoria(categoria) {
+    setCat(categoria); // Reutilizamos tu función setCat existente
+    document.getElementById('side-nav').classList.remove('open'); // Cierra el menú automáticamente al elegir
+}
+
+function toggleSubmenu() {
+    const submenu = document.getElementById('submenu-productos');
+    console.log("Clic detectado"); // Esto aparecerá en la consola si funciona
+    
+    if (submenu.style.display === 'none' || submenu.style.display === '') {
+        submenu.style.display = 'block';
+    } else {
+        submenu.style.display = 'none';
+    }
+}

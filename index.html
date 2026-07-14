@@ -9,30 +9,83 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <button class="btn-menu-lateral" onclick="document.getElementById('side-nav').classList.add('open')">☰</button>
 
+<nav id="side-nav" class="nav-sidebar">
+    <button class="btn-cerrar-menu" onclick="document.getElementById('side-nav').classList.remove('open')">&times;</button>
+    <ul>
+<!-- 1. Inicio (Ofertas) -->
+            <li><a href="#" onclick="mostrarOfertas()">Inicio (Ofertas)</a></li>
+            
+            <!-- 2. Todos -->
+            <li><a href="#" onclick="mostrarTodo()">Todos los productos</a></li>
+            
+            <!-- 3. Productos (Categorías) -->
+            <li>
+                <a href="#" onclick="toggleSubmenu()">Productos ▼</a>
+                <ul id="submenu-productos" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px;">
+                    <li><a href="#" onclick="filtrarCategoria('Celulares')">Celulares</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Hogar')">Hogar</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Herramientas')">Herramientas</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Gaming</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Cocina</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Auriculares</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Audio</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Smartwatch</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Memorias</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Termos</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Belleza</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Juguetes</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Vehiculos</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Camping</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Perfumería</a></li>
+                    <li><a href="#" onclick="filtrarCategoria('Accesorios')">Mascotas</a></li>
+                </ul>
+            </li>
+            
+            <!-- 4. Contacto -->
+<!-- En lugar de la línea anterior de Contacto, pon esto: -->
+<li>
+    <a href="#" onclick="toggleSubmenuContacto()">Contacto ▼</a>
+    <ul id="submenu-contacto" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px; padding-bottom: 10px;">
+        <li style="margin-top: 10px; color: #aaa;">📱 Instagram: @puntodigital.sr</li>
+        <li style="margin-top: 5px; color: #aaa;">📘 Facebook: Punto Digital</li>
+        <li style="margin-top: 5px; color: #aaa;">📧 mail: puntodigital.lat@gmail.com</li>
+        <li style="margin-top: 10px;">
+            <a href="https://wa.me/5492604401898" target="_blank" style="color: #25d366; font-weight: bold;">💬 WhatsApp: 2604401898</a>
+        </li>
+    </ul>
+</li>
+</nav>
+   
+ <!-- ESTA ES LA ESTRUCTURA ÚNICA -->
+<div class="header-fijo">
+    <!-- Logo y Título -->
     <header class="main-header">
-        <img src="img/logo.png" alt="Punto Digital Logo" class="logo-principal" onerror="this.src='https://via.placeholder.com/150/f2b705/000000?text=Punto+Digital'">
+        <img src="img/logo.png" alt="Logo" class="logo-principal">
         <div class="brand-text-container">
             <h1 class="brand-name">Punto Digital</h1>
             <p class="brand-slogan">Tu mundo digital, en un punto.</p>
         </div>
     </header>
 
+    <!-- Buscador (Solo uno) -->
     <nav class="sticky-nav">
         <div class="search-box">
-            <div class="search-wrapper">
-                <input type="text" id="busqueda" placeholder="¿Qué estás buscando hoy?">
-                <button id="btn-limpiar-busqueda" onclick="limpiarBuscador()">&times;</button>
-            </div>
+            <input type="text" id="busqueda" placeholder="¿Qué estás buscando hoy?">
         </div>
-        <div class="category-bar-double" id="grid-categorias"></div>
     </nav>
+</div>
+    </header>
 
+    <!-- Solo un main, justo después del nav -->
     <main class="products-grid" id="contenedor-productos"></main>
 
     <div id="cart-float" onclick="toggleCarrito()">
         🛒<span id="cantidad-badge">0</span>
     </div>
+    
+    <!-- Sigue el resto de tu código... -->
 
     <div id="toast-container"></div>
 
@@ -80,6 +133,7 @@
                 </div>
             </div>
 
+        
             <button class="btn-whatsapp" onclick="enviarWhatsApp()">Enviar Pedido por WhatsApp</button>
         </div>
     </div>

@@ -269,3 +269,113 @@ body {
     #toast-container { bottom: 95px; right: 15px; left: 15px; } /* Centrado fluido en mobile */
     .toast-notif { font-size: 0.85rem; justify-content: center; }
 }
+
+
+/* Estilo para los enlaces del menú */
+.nav-sidebar ul li a {
+    color: #e0e0e0; /* Color gris claro para mayor legibilidad */
+    text-decoration: none;
+    font-weight: 500;
+    padding: 12px 20px;
+    display: block;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+/* Efecto al pasar el mouse */
+.nav-sidebar ul li a:hover {
+    background: #1a1a1a;
+    color: var(--amarillo); /* El color amarillo de tu marca */
+    border-left: 3px solid var(--amarillo); /* Línea lateral amarilla */
+}
+
+/* Mejora para el submenú (Herramientas, Hogar, Celulares) */
+.nav-sidebar ul li ul {
+    background: #050505;
+    padding-left: 15px;
+}
+
+.nav-sidebar ul li ul li a {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+/* Menú lateral moderno */
+.nav-sidebar {
+    background: #050505; /* Un negro un poco más profundo */
+    border-right: 1px solid #222;
+    padding: 20px 0;
+}
+
+.nav-sidebar ul li a {
+    color: #fff;
+    padding: 15px 25px;
+    display: block;
+    border-left: 4px solid transparent;
+    transition: 0.3s;
+}
+
+.nav-sidebar ul li a:hover {
+    background: #151515;
+    border-left: 4px solid var(--amarillo);
+    color: var(--amarillo);
+}
+
+/* Sub-menú (Herramientas, Hogar, Celulares) */
+.nav-sidebar ul li ul {
+    background: #0f0f0f;
+    padding-left: 20px;
+}
+
+/* Menú lateral como capa flotante */
+.nav-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%; /* Oculto por defecto fuera de pantalla */
+    width: 280px;
+    height: 100%;
+    background: #050505;
+    border-right: 1px solid #222;
+    z-index: 9999; /* Siempre encima de todo */
+    transition: left 0.4s ease; /* Animación suave al abrir */
+    padding-top: 60px;
+}
+
+/* Clase que aplicas con JS para mostrarlo */
+.nav-sidebar.open {
+    left: 0;
+}
+
+.btn-menu-lateral {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10000; /* Asegura que esté siempre encima de todo */
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#submenu-productos {
+    display: none; /* Ahora controlamos la visibilidad solo desde CSS */
+}
+
+.btn-cerrar-menu {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.btn-cerrar-menu:hover {
+    color: var(--amarillo); /* Se pone amarillo al pasar el mouse */
+    transform: rotate(90deg); /* Gira levemente para dar efecto */
+}
