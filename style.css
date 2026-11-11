@@ -657,3 +657,40 @@ body {
     max-height: 100% !important;
     object-fit: contain !important;
 }
+/* ==========================================
+   CORRECCIÓN RESPONSIVA PARA MÓVILES
+========================================== */
+
+@media (max-width: 768px) {
+    /* Forzar que las novedades en celular se muestren en 2 columnas prolijas */
+    .products-grid-5 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        padding: 0 10px !important;
+    }
+
+    /* Ajustar tamaño de las tarjetas para pantallas chicas */
+    .card {
+        padding: 10px !important;
+    }
+
+    .card img {
+        height: 120px !important; /* Imagen un poco más compacta en celular */
+    }
+
+    .card h3 {
+        font-size: 0.85rem !important;
+        height: 32px !important;
+        margin: 8px 0 4px 0 !important;
+    }
+
+    .precio {
+        font-size: 1rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .btn-add {
+        padding: 8px !important;
+        font-size: 0.9rem !important;
+    }
+}
