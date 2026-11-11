@@ -15,13 +15,13 @@
     <nav id="side-nav" class="nav-sidebar">
         <button class="btn-cerrar-menu" onclick="document.getElementById('side-nav').classList.remove('open')">&times;</button>
         <ul>
-            <!-- 1. Inicio (Ofertas) -->
-            <li><span onclick="mostrarOfertas()" style="cursor: pointer;">Inicio (Ofertas)</span></li>
+            <!-- Inicio (Ofertas / Novedades) -->
+            <li><span onclick="mostrarOfertas()" style="cursor: pointer;">Inicio (Novedades)</span></li>
             
-            <!-- 2. Todos -->
+            <!-- Todos los productos -->
             <li><span onclick="mostrarTodo()" style="cursor: pointer;">Todos los productos</span></li>
             
-            <!-- 3. Productos (Categorías) -->
+            <!-- Productos (Categorías) -->
             <li>
                 <span onclick="toggleSubmenu()" style="cursor: pointer;">Productos ▼</span>
                 <ul id="submenu-productos" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px;">
@@ -47,7 +47,7 @@
                 </ul>
             </li>
             
-            <!-- 4. Contacto -->
+            <!-- Contacto -->
             <li>
                 <span onclick="toggleSubmenuContacto()" style="cursor: pointer;">Contacto ▼</span>
                 <ul id="submenu-contacto" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px; padding-bottom: 10px;">
@@ -78,16 +78,23 @@
         </nav>
     </div>
 
-    </header>
+    <!-- Contenido Principal Dinámico -->
+    <main class="main-content">
+        <!-- Sección de Últimos Productos (2 filas de 5 en la Home) -->
+        <section id="seccion-novedades" class="container my-4">
+            <div class="section-title" style="margin-bottom: 15px; font-weight: 600; font-size: 1.2rem;">✨ Últimos Productos Cargados</div>
+            <div id="grid-novedades" class="products-grid-5"></div>
+        </section>
 
-    <!-- Solo un main, justo después del nav -->
-    <main class="products-grid" id="contenedor-productos"></main>
+        <!-- Sección general de productos / ofertas según la vista activa -->
+        <section class="container my-4">
+            <div id="contenedor-productos" class="products-grid"></div>
+        </section>
+    </main>
 
     <div id="cart-float" onclick="toggleCarrito()">
         🛒<span id="cantidad-badge">0</span>
     </div>
-    
-    <!-- Sigue el resto de tu código... -->
 
     <div id="toast-container"></div>
 
@@ -135,7 +142,6 @@
                 </div>
             </div>
 
-        
             <button class="btn-whatsapp" onclick="enviarWhatsApp()">Enviar Pedido por WhatsApp</button>
         </div>
     </div>

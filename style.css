@@ -14,7 +14,10 @@ body {
     overflow-x: hidden; 
 }
 
-/* Header Estructurado */
+
+/* ==========================================
+   HEADER Y LOGO
+========================================== */
 .main-header { 
     display: flex;
     align-items: center;
@@ -22,6 +25,7 @@ body {
     gap: 15px;
     padding: 25px 20px 10px; 
 }
+
 .logo-principal { 
     width: 90px; 
     height: 90px; 
@@ -29,7 +33,6 @@ body {
     object-fit: cover; 
     border: 2px solid var(--amarillo); 
     background: #111; 
-    /* Fuerza el recorte circular perfecto */
     clip-path: circle(50%); 
 }
 
@@ -38,18 +41,43 @@ body {
     flex-direction: column;
     text-align: left;
 }
-.brand-name { color: var(--amarillo); margin: 0; font-size: 2rem; font-weight: 700; line-height: 1.1; }
-.brand-slogan { margin: 4px 0 0 0; font-size: 0.9rem; color: #aaa; font-weight: 400; }
 
-.sticky-nav { position: sticky; top: 0; background: var(--negro); z-index: 100; padding: 10px 0; }
-.search-box { display: flex; justify-content: center; padding: 0 15px; margin-bottom: 10px; }
+.brand-name { 
+    color: var(--amarillo); 
+    margin: 0; 
+    font-size: 2rem; 
+    font-weight: 700; 
+    line-height: 1.1; 
+}
 
-/* Contenedor del Buscador con Botón Limpiar */
+.brand-slogan { 
+    margin: 4px 0 0 0; 
+    font-size: 0.9rem; 
+    color: #aaa; 
+    font-weight: 400; 
+}
+
+.sticky-nav { 
+    position: sticky; 
+    top: 0; 
+    background: var(--negro); 
+    z-index: 100; 
+    padding: 10px 0; 
+}
+
+.search-box { 
+    display: flex; 
+    justify-content: center; 
+    padding: 0 15px; 
+    margin-bottom: 10px; 
+}
+
 .search-wrapper {
     position: relative;
     width: 100%;
     max-width: 450px;
 }
+
 #busqueda { 
     width: 100%; 
     padding: 12px 45px 12px 20px; 
@@ -61,6 +89,7 @@ body {
     font-family: var(--fuente);
     box-sizing: border-box;
 }
+
 #btn-limpiar-busqueda {
     position: absolute;
     right: 15px;
@@ -71,38 +100,134 @@ body {
     color: #666;
     font-size: 22px;
     cursor: pointer;
-    display: none; /* Se maneja con JS */
+    display: none;
     line-height: 1;
     padding: 0;
 }
 #btn-limpiar-busqueda:hover { color: var(--amarillo); }
 
-.category-bar-double { 
-    display: grid; 
-    grid-template-rows: repeat(2, auto); 
-    grid-auto-flow: column; 
-    gap: 10px; 
-    padding: 10px 15px; 
-    overflow-x: auto; 
-}
-.category-bar-double::-webkit-scrollbar { display: none; }
-.cat-bubble { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    background: #1a1a1a; 
-    padding: 8px 16px; 
-    border-radius: 20px; 
-    cursor: pointer; 
-    border: 1px solid #333;
-    transition: 0.3s; 
-    color: #ccc; 
-    white-space: nowrap; 
-    font-size: 0.85rem;
-}
-.cat-bubble:hover { background: #222; border-color: var(--amarillo); transform: translateY(-2px); }
-.cat-bubble.active { background: var(--amarillo); color: black; font-weight: 600; border-color: var(--amarillo); }
 
+/* ==========================================
+   MENÚ LATERAL (SIDEBAR)
+========================================== */
+.btn-menu-lateral {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10000;
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.nav-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100%;
+    max-height: 100vh;
+    background: #050505;
+    border-right: 1px solid #222;
+    z-index: 9999;
+    transition: left 0.4s ease;
+    padding: 60px 0 100px 0;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.nav-sidebar.open {
+    left: 0;
+}
+
+.nav-sidebar ul, 
+.menu-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    padding-bottom: 20px;
+}
+
+.nav-sidebar li {
+    padding: 12px 20px;
+    border-bottom: 1px solid #222;
+    transition: background 0.3s;
+}
+
+.nav-sidebar li:hover {
+    background-color: #1a1a1a;
+}
+
+.nav-sidebar ul li span {
+    color: #fff;
+    display: block;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.nav-sidebar ul li span:hover {
+    color: var(--amarillo);
+}
+
+.nav-sidebar ul li ul {
+    background: #0a0a0a;
+    padding-left: 15px;
+    margin-top: 10px;
+}
+
+.nav-sidebar ul li ul li {
+    border-bottom: none;
+    padding: 8px 10px;
+}
+
+.nav-sidebar ul li ul li span {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+.nav-sidebar ul li ul li span:hover {
+    color: var(--amarillo);
+}
+
+.btn-cerrar-menu {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.btn-cerrar-menu:hover {
+    color: var(--amarillo);
+    transform: rotate(90deg);
+}
+
+.nav-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+.nav-sidebar::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+.nav-sidebar::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 10px;
+    border: 2px solid #1a1a1a;
+}
+.nav-sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--amarillo);
+}
+
+
+/* ==========================================
+   GRILLAS DE PRODUCTOS (GENERAL + NOVEDADES)
+========================================== */
 .products-grid { 
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
@@ -110,7 +235,14 @@ body {
     padding: 15px; 
 }
 
-/* Efecto Vitrina en las Tarjetas */
+.products-grid-5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    padding: 0 15px;
+    margin-bottom: 30px;
+}
+
 .card { 
     background: var(--gris); 
     padding: 12px; 
@@ -125,81 +257,144 @@ body {
     justify-content: space-between;
     overflow: hidden;
 }
+
 .card:hover { 
     transform: translateY(-6px);
     border-color: var(--amarillo); 
     box-shadow: 0 10px 20px rgba(255, 215, 0, 0.15);
 }
-.card img { width: 100%; height: 140px; object-fit: contain; background: white; border-radius: 10px; transition: transform 0.4s ease; }
-.card:hover img { transform: scale(1.06); }
 
-.card h3 { font-size: 0.95rem; margin: 10px 0 5px 0; font-weight: 500; color: #fff; text-align: left; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px; }
-.precio { color: var(--amarillo); font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; text-align: left; }
-.btn-add { background: var(--amarillo); border: none; padding: 10px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: var(--fuente); }
-
-.card-badge-oferta {
-    position: absolute; top: 8px; left: 8px; background: #ff3838; color: white;
-    font-size: 0.7rem; font-weight: 700; padding: 4px 8px; border-radius: 6px; z-index: 10;
+.card img { 
+    width: 100%; 
+    height: 140px; 
+    object-fit: contain; 
+    background: white; 
+    border-radius: 10px; 
+    transition: transform 0.4s ease; 
 }
 
-/* Carrito Flotante con Animación */
+.card:hover img { 
+    transform: scale(1.06); 
+}
+
+.card h3 { 
+    font-size: 0.95rem; 
+    margin: 10px 0 5px 0; 
+    font-weight: 500; 
+    color: #fff; 
+    text-align: left; 
+    display: -webkit-box; 
+    -webkit-line-clamp: 2; 
+    line-clamp: 2;
+    -webkit-box-orient: vertical; 
+    overflow: hidden; 
+    height: 36px; 
+}
+
+.precio { 
+    color: var(--amarillo); 
+    font-weight: 700; 
+    font-size: 1.1rem; 
+    margin-bottom: 10px; 
+    text-align: left; 
+}
+
+.btn-add { 
+    background: var(--amarillo); 
+    border: none; 
+    padding: 10px; 
+    width: 100%; 
+    border-radius: 8px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    font-family: var(--fuente); 
+}
+
+.card-badge-oferta {
+    position: absolute; 
+    top: 8px; 
+    left: 8px; 
+    background: #ff3838; 
+    color: white;
+    font-size: 0.7rem; 
+    font-weight: 700; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
+    z-index: 10;
+}
+
+
+/* ==========================================
+   CARRITO FLOTANTE Y LATERAL
+========================================== */
 #cart-float { 
-    position: fixed; bottom: 25px; right: 25px; background: var(--amarillo); 
-    width: 65px; height: 65px; border-radius: 50%; display: flex; 
-    justify-content: center; align-items: center; cursor: pointer; 
-    z-index: 1500; color: black; font-size: 1.5rem;
+    position: fixed; 
+    bottom: 25px; 
+    right: 25px; 
+    background: var(--amarillo); 
+    width: 65px; 
+    height: 65px; 
+    border-radius: 50%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    cursor: pointer; 
+    z-index: 1500; 
+    color: black; 
+    font-size: 1.5rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     transition: transform 0.2s ease;
 }
-#cart-float.rebote-anim { animation: pulsoPop 0.4s ease-in-out; }
+
+#cart-float.rebote-anim { 
+    animation: pulsoPop 0.4s ease-in-out; 
+}
+
 @keyframes pulsoPop {
     0% { transform: scale(1); }
     50% { transform: scale(1.3) rotate(-10deg); }
     100% { transform: scale(1); }
 }
-#cantidad-badge { font-size: 1rem; font-weight: 800; margin-left: 5px; }
 
-/* Contenedor y Estilo de Alertas Toasts */
-#toast-container {
-    position: fixed;
-    bottom: 105px;
-    right: 25px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    pointer-events: none;
-}
-.toast-notif {
-    background: #111;
-    color: white;
-    border-left: 4px solid var(--amarillo);
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
-    font-size: 0.9rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    animation: entradaToast 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), salidaToast 0.3s ease 2.2s forwards;
-    pointer-events: auto;
-}
-@keyframes entradaToast {
-    from { transform: translateY(20px) scale(0.8); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-}
-@keyframes salidaToast {
-    from { transform: translateY(0); opacity: 1; }
-    to { transform: translateY(-20px); opacity: 0; }
+#cantidad-badge { 
+    font-size: 1rem; 
+    font-weight: 800; 
+    margin-left: 5px; 
 }
 
-.cart-sidebar { position: fixed; right: -100%; top: 0; width: 350px; height: 100%; background: #0a0a0a; transition: 0.4s; z-index: 2000; display: flex; flex-direction: column; }
-.cart-sidebar.open { right: 0; }
-.cart-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-.btn-close { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+.cart-sidebar { 
+    position: fixed; 
+    right: -100%; 
+    top: 0; 
+    width: 350px; 
+    height: 100%; 
+    background: #0a0a0a; 
+    transition: 0.4s; 
+    z-index: 2000; 
+    display: flex; 
+    flex-direction: column; 
+}
 
-/* Botón Vaciar Carrito */
+.cart-sidebar.open { 
+    right: 0; 
+}
+
+.cart-header { 
+    padding: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid #222; 
+}
+
+.btn-close { 
+    background: none; 
+    border: none; 
+    color: white; 
+    font-size: 28px; 
+    cursor: pointer; 
+}
+
 .btn-vaciar {
     background: none;
     border: 1px solid #ff3838;
@@ -213,7 +408,51 @@ body {
 }
 .btn-vaciar:hover { background: #ff3838; color: white; }
 
-/* Caja de Carrito Vacío */
+.cart-body { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 15px; 
+}
+
+.qty-btn { 
+    background: var(--amarillo); 
+    border: none; 
+    width: 28px; 
+    height: 28px; 
+    border-radius: 5px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    margin: 0 8px; 
+}
+
+.cart-footer { 
+    padding: 20px; 
+    border-top: 1px solid #222; 
+    background: #0a0a0a; 
+}
+
+.total-container { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 15px; 
+    font-size: 1.3rem; 
+    font-weight: bold; 
+    color: var(--amarillo); 
+}
+
+.btn-whatsapp { 
+    width: 100%; 
+    padding: 15px; 
+    background: var(--verde); 
+    color: white; 
+    border: none; 
+    border-radius: 10px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    font-size: 1rem; 
+    font-family: var(--fuente); 
+}
+
 .carrito-vacio-box {
     display: flex;
     flex-direction: column;
@@ -226,217 +465,195 @@ body {
 .carrito-vacio-box span { font-size: 3rem; margin-bottom: 15px; }
 .carrito-vacio-box p { margin: 0; font-size: 0.95rem; }
 
-.cart-body { flex: 1; overflow-y: auto; padding: 15px; }
-.qty-btn { background: var(--amarillo); border: none; width: 28px; height: 28px; border-radius: 5px; font-weight: bold; cursor: pointer; margin: 0 8px; }
 
-.modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 10px; box-sizing: border-box; }
-.modal-content { background: #1a1a1a; width: 100%; max-width: 750px; border-radius: 20px; padding: 25px; position: relative; border: 1px solid #333; }
-.modal-close { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.4); border: none; color: white; font-size: 20px; cursor: pointer; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+/* ==========================================
+   MODAL / DETALLE DE PRODUCTO
+========================================== */
+.modal { 
+    display: none; 
+    position: fixed; 
+    z-index: 3000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.85); 
+    justify-content: center; 
+    align-items: center; 
+    backdrop-filter: blur(5px); 
+    padding: 10px; 
+    box-sizing: border-box; 
+}
 
-.modal-layout-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 25px; align-items: start; text-align: left; }
-.modal-zoom-container { width: 100%; height: 260px; background: white; border-radius: 15px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: 1px solid #333; }
-.modal-zoom-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.modal-content { 
+    background: #1a1a1a; 
+    width: 100%; 
+    max-width: 750px; 
+    border-radius: 20px; 
+    padding: 25px; 
+    position: relative; 
+    border: 1px solid #333; 
+}
 
-.modal-thumbnails { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; }
-.modal-thumbnails img { width: 60px; height: 60px; object-fit: contain; background: white; border-radius: 8px; cursor: pointer; min-width: 60px; }
-.modal-thumbnails img.active-thumb { border-color: var(--amarillo); }
+.modal-close { 
+    position: absolute; 
+    top: 15px; 
+    right: 15px; 
+    background: rgba(0,0,0,0.4); 
+    border: none; 
+    color: white; 
+    font-size: 20px; 
+    cursor: pointer; 
+    width: 35px; 
+    height: 35px; 
+    border-radius: 50%; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+}
 
-.modal-col-info h2 { margin: 0 0 10px 0; font-size: 1.5rem; color: white; font-weight: 700; }
-.modal-precio-tag { font-size: 2.2rem; color: var(--amarillo); font-weight: 700; margin: 10px 0; }
+.modal-layout-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1.2fr; 
+    gap: 25px; 
+    align-items: start; 
+    text-align: left; 
+}
 
-.modal-banner-oferta { background: #2a1215; border: 1px solid #ff3838; padding: 10px 15px; border-radius: 10px; margin: 12px 0; display: flex; justify-content: space-between; align-items: center; }
-.modal-banner-oferta span { font-size: 0.8rem; font-weight: 600; color: #ff6b6b; }
-.modal-banner-oferta .reloj { font-size: 1.1rem; font-weight: 700; color: #ff3838; }
-.modal-escasez-badge { font-size: 0.85rem; color: #ffb300; margin: 5px 0 15px 0; font-weight: 500; }
+.modal-zoom-container { 
+    width: 100%; 
+    height: 260px; 
+    background: white; 
+    border-radius: 15px; 
+    overflow: hidden; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border: 1px solid #333; 
+}
 
-.modal-descripcion-contenedor h3 { font-size: 0.95rem; text-transform: uppercase; color: #888; margin: 0 0 5px 0; }
-.modal-descripcion-contenedor p { font-size: 0.9rem; color: #ddd; margin: 0; line-height: 1.5; }
+.modal-zoom-container img { 
+    max-width: 100%; 
+    max-height: 100%; 
+    object-fit: contain; 
+}
 
-.cart-footer { padding: 20px; border-top: 1px solid #222; background: #0a0a0a; }
-.total-container { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.3rem; font-weight: bold; color: var(--amarillo); }
-.btn-whatsapp { width: 100%; padding: 15px; background: var(--verde); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 1rem; font-family: var(--fuente); }
+.modal-thumbnails { 
+    display: flex; 
+    gap: 8px; 
+    margin-top: 10px; 
+    overflow-x: auto; 
+}
 
-@media (max-width: 768px) {
-    .main-header { padding: 15px 10px 5px; gap: 10px; }
-    .logo-principal { width: 65px; height: 65px; }
-    .brand-name { font-size: 1.6rem; }
-    .brand-slogan { font-size: 0.8rem; }
-    .products-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; padding: 10px; }
-    .cart-sidebar { width: 100%; }
-    .modal-content { padding: 45px 15px 20px 15px; max-height: 92vh; overflow-y: auto; }
-    .modal-layout-grid { grid-template-columns: 1fr; gap: 15px; }
-    .modal-zoom-container { height: 200px; }
-    #toast-container { bottom: 95px; right: 15px; left: 15px; } /* Centrado fluido en mobile */
-    .toast-notif { font-size: 0.85rem; justify-content: center; }
+.modal-thumbnails img { 
+    width: 60px; 
+    height: 60px; 
+    object-fit: contain; 
+    background: white; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    min-width: 60px; 
+}
+
+.modal-thumbnails img.active-thumb { 
+    border-color: var(--amarillo); 
+}
+
+.modal-col-info h2 { 
+    margin: 0 0 10px 0; 
+    font-size: 1.5rem; 
+    color: white; 
+    font-weight: 700; 
+}
+
+.modal-precio-tag { 
+    font-size: 2.2rem; 
+    color: var(--amarillo); 
+    font-weight: 700; 
+    margin: 10px 0; 
+}
+
+.modal-banner-oferta { 
+    background: #2a1215; 
+    border: 1px solid #ff3838; 
+    padding: 10px 15px; 
+    border-radius: 10px; 
+    margin: 12px 0; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.modal-banner-oferta span { 
+    font-size: 0.8rem; 
+    font-weight: 600; 
+    color: #ff6b6b; 
+}
+
+.modal-banner-oferta .reloj { 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+    color: #ff3838; 
+}
+
+.modal-escasez-badge { 
+    font-size: 0.85rem; 
+    color: #ffb300; 
+    margin: 5px 0 15px 0; 
+    font-weight: 500; 
+}
+
+.modal-descripcion-contenedor h3 { 
+    font-size: 0.95rem; 
+    text-transform: uppercase; 
+    color: #888; 
+    margin: 0 0 5px 0; 
+}
+
+.modal-descripcion-contenedor p { 
+    font-size: 0.9rem; 
+    color: #ddd; 
+    margin: 0; 
+    line-height: 1.5; 
 }
 
 
-/* Estilo para los enlaces del menú */
-.nav-sidebar ul li a {
-    color: #e0e0e0; /* Color gris claro para mayor legibilidad */
-    text-decoration: none;
-    font-weight: 500;
-    padding: 12px 20px;
-    display: block;
-    transition: all 0.3s ease;
-    border-left: 3px solid transparent;
-}
-
-/* Efecto al pasar el mouse */
-.nav-sidebar ul li a:hover {
-    background: #1a1a1a;
-    color: var(--amarillo); /* El color amarillo de tu marca */
-    border-left: 3px solid var(--amarillo); /* Línea lateral amarilla */
-}
-
-/* Mejora para el submenú (Herramientas, Hogar, Celulares) */
-.nav-sidebar ul li ul {
-    background: #050505;
-    padding-left: 15px;
-}
-
-.nav-sidebar ul li ul li a {
-    font-size: 0.9rem;
-    color: #999;
-}
-
-/* Menú lateral moderno */
-.nav-sidebar {
-    background: #050505; /* Un negro un poco más profundo */
-    border-right: 1px solid #222;
-    padding: 20px 0;
-}
-
-.nav-sidebar ul li a {
-    color: #fff;
-    padding: 15px 25px;
-    display: block;
-    border-left: 4px solid transparent;
-    transition: 0.3s;
-}
-
-.nav-sidebar ul li a:hover {
-    background: #151515;
-    border-left: 4px solid var(--amarillo);
-    color: var(--amarillo);
-}
-
-/* Sub-menú (Herramientas, Hogar, Celulares) */
-.nav-sidebar ul li ul {
-    background: #0f0f0f;
-    padding-left: 20px;
-}
-
-/* Menú lateral como capa flotante */
-.nav-sidebar {
+/* ==========================================
+   SISTEMA DE NOTIFICACIONES (TOASTS)
+========================================== */
+#toast-container {
     position: fixed;
-    top: 0;
-    left: -100%; /* Oculto por defecto fuera de pantalla */
-    width: 280px;
-    height: 100%;
-    background: #050505;
-    border-right: 1px solid #222;
-    z-index: 9999; /* Siempre encima de todo */
-    transition: left 0.4s ease; /* Animación suave al abrir */
-    padding-top: 60px;
+    bottom: 105px;
+    right: 25px;
+    z-index: 9999;
+    display: flex;
 }
 
-/* Clase que aplicas con JS para mostrarlo */
-.nav-sidebar.open {
-    left: 0;
+/* Forzar diseño de dos columnas en la página de detalle */
+#detalle-producto-container {
+    display: grid !important;
+    grid-template-columns: 1fr 1.2fr !important;
+    gap: 30px !important;
+    align-items: start !important;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-.btn-menu-lateral {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    z-index: 10000; /* Asegura que esté siempre encima de todo */
-    background: transparent;
-    color: white;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
+/* Asegurar tamaño correcto de la foto principal */
+.modal-zoom-container {
+    width: 100% !important;
+    height: 320px !important;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #333;
 }
 
-#submenu-productos {
-    display: none; /* Ahora controlamos la visibilidad solo desde CSS */
-}
-
-.btn-cerrar-menu {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 30px;
-    cursor: pointer;
-    line-height: 1;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.btn-cerrar-menu:hover {
-    color: var(--amarillo); /* Se pone amarillo al pasar el mouse */
-    transform: rotate(90deg); /* Gira levemente para dar efecto */
-}
-
-.nav-sidebar {
-    /* Mantén tus propiedades actuales y agrega estas: */
-    height: 100%;       /* Ocupa toda la altura de la pantalla */
-    overflow-y: auto;   /* ¡ESTA ES LA CLAVE! Permite hacer scroll vertical */
-    padding-bottom: 50px; /* Un poco de aire abajo para que no se pegue al borde */
-}
-
-/* Para navegadores basados en Webkit (Chrome, Edge, Safari) */
-#side-nav::-webkit-scrollbar {
-    width: 8px; /* Ancho de la barra */
-}
-
-#side-nav::-webkit-scrollbar-track {
-    background: #1a1a1a; /* Fondo de la barra (el gris oscuro del menú) */
-}
-
-#side-nav::-webkit-scrollbar-thumb {
-    background-color: #333; /* Color de la barrita que se mueve */
-    border-radius: 10px; /* Bordes redondeados para que se vea moderno */
-    border: 2px solid #1a1a1a; /* Un pequeño margen para que no toque los bordes */
-}
-
-#side-nav::-webkit-scrollbar-thumb:hover {
-    background-color: #ffcc00; /* Color amarillo al pasar el mouse (estilo de tu marca) */
-}
-
-
-.menu-lista, .nav-sidebar ul {
-    list-style: none; /* Esto elimina los puntos blancos */
-    padding: 0;
-    margin: 0;
-}
-
-.nav-sidebar li {
-    padding: 15px 20px; /* Más espacio entre categorías */
-    border-bottom: 1px solid #222; /* Una línea muy sutil para separar cada opción */
-    transition: background 0.3s;
-}
-
-.nav-sidebar li:hover {
-    background-color: #252525; /* Efecto suave al pasar el mouse */
-}
-.nav-sidebar {
-    height: 100%;
-    overflow-y: auto;
-    /* Esto es lo que soluciona el corte: */
-    padding-bottom: 100px !important; 
-    /* Aseguramos que los elementos tengan espacio para mostrarse al final */
-}
-
-/* Opcional: Asegúrate de que el contenedor de la lista también tenga espacio */
-.nav-sidebar ul {
-    padding-bottom: 20px;
-}
-
-.nav-sidebar {
-    max-height: 100vh;
-    overflow-y: auto;
-    padding-bottom: 100px;
+.modal-zoom-container img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
 }

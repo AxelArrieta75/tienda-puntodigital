@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto - Punto Digital</title>
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="detalle-body">
+
+    <!-- Botón para volver atrás -->
+    <div style="padding: 20px;">
+        <a href="index.html" style="color: var(--amarillo); text-decoration: none; font-weight: 600;">← Volver a la tienda</a>
+    </div>
+
+    <!-- Contenedor principal del detalle -->
+    <main class="container">
+        <div id="detalle-producto-container">
+            <p style="color: #aaa; text-align: center; grid-column: span 2;">Cargando detalles del producto...</p>
+        </div>
+    </main>
+
+    <!-- Carrito Flotante (Burbuja) -->
+    <div id="cart-float" onclick="toggleCarrito()">
+        🛒<span id="cantidad-badge">0</span>
+    </div>
+
+    <!-- Contenedor de Notificaciones (Toast) -->
+    <div id="toast-container"></div>
+
+    <!-- Carrito Lateral Completo -->
+    <div id="carrito-lateral" class="cart-sidebar">
+        <div class="cart-header">
+            <h2 style="margin:0; font-size:1.2rem;">Tu Carrito</h2>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn-vaciar" onclick="vaciarCarrito()" title="Vaciar Carrito">🗑️ Vaciar</button>
+                <button class="btn-close" onclick="toggleCarrito()">&times;</button>
+            </div>
+        </div>
+        
+        <div class="cart-body" id="lista-carrito"></div>
+
+        <div class="cart-footer">
+            <div class="total-container">
+                <span>Total:</span>
+                <span id="total-monto">$0</span>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="cupon-input" placeholder="¿Tenés un cupón de descuento?" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; text-transform: uppercase; font-family: inherit;">
+                <p id="cupon-mensaje" style="margin: 5px 0 0 0; font-size: 12px; font-weight: bold; display: none;"></p>
+            </div>
+
+            <div style="margin-bottom: 15px; border-top: 1px solid #222; padding-top: 15px;">
+                <input type="text" id="cliente-nombre" placeholder="Tu Nombre y Apellido" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; margin-bottom: 8px; font-family: inherit;">
+                <input type="tel" id="cliente-telefono" placeholder="Tu Teléfono (ej: 2604______)" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; margin-bottom: 8px; font-family: inherit;">
+                
+                <select id="metodo-entrega" onchange="alternarCampoDireccion()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; margin-bottom: 8px; font-family: inherit; cursor: pointer;">
+                    <option value="retiro">Retiro en Local (Gratis)</option>
+                    <option value="envio">Envío a Domicilio</option>
+                </select>
+
+                <input type="text" id="cliente-direccion" placeholder="Calle, Número y Barrio" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ff3838; background: #111; color: white; box-sizing: border-box; display: none; margin-bottom: 8px; font-family: inherit;">
+
+                <select id="metodo-pago" onchange="alternarDatosTransferencia()" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; box-sizing: border-box; font-family: inherit; cursor: pointer;">
+                    <option value="efectivo">Efectivo / Abonar al recibir</option>
+                    <option value="transferencia">Transferencia Bancaria / Virtual</option>
+                </select>
+
+                <div id="datos-transferencia-box" style="display: none; background: #1a1a1a; border: 1px dashed var(--amarillo); padding: 12px; border-radius: 8px; margin-top: 8px; font-size: 0.85rem; color: #ddd; line-height: 1.4;">
+                    <strong style="color: var(--amarillo);">Datos para Transferencia:</strong><br>
+                    <span id="txt-datos-banco">Cargando datos...</span>
+                </div>
+            </div>
+
+            <button class="btn-whatsapp" onclick="enviarWhatsApp()">Enviar Pedido por WhatsApp</button>
+        </div>
+    </div>
+
+    <script src="productos.js"></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            const productoId = params.get("id");
+            
+            const verificarProductos = setInterval(() => {
+                if (typeof productos !== "undefined" && productos.length > 0) {
+                    clearInterval(verificarProductos);
+                    if (typeof mostrarDetalleEnPagina === "function") {
+                        mostrarDetalleEnPagina(productoId);
+                    }
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>
