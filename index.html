@@ -12,18 +12,18 @@
 
     <button class="btn-menu-lateral" onclick="document.getElementById('side-nav').classList.add('open')">☰</button>
 
+    <!-- Menú Lateral -->
     <nav id="side-nav" class="nav-sidebar">
         <button class="btn-cerrar-menu" onclick="document.getElementById('side-nav').classList.remove('open')">&times;</button>
         <ul>
-            <!-- Inicio (Ofertas / Novedades) -->
-            <li><span onclick="mostrarOfertas()" style="cursor: pointer;">Inicio (Novedades)</span></li>
-            
-            <!-- Todos los productos -->
-            <li><span onclick="mostrarTodo()" style="cursor: pointer;">Todos los productos</span></li>
+            <li><span onclick="mostrarInicioCompleto(); document.getElementById('side-nav').classList.remove('open');" style="cursor: pointer;">🏠 Inicio</span></li>
+            <li><span onclick="scrollearA('seccion-destacados'); document.getElementById('side-nav').classList.remove('open');" style="cursor: pointer;">✨ Nuestros Destacados</span></li>
+            <li><span onclick="scrollearA('seccion-ofertas'); document.getElementById('side-nav').classList.remove('open');" style="cursor: pointer;">🔥 Ofertas</span></li>
+            <li><span onclick="scrollearA('seccion-todos'); document.getElementById('side-nav').classList.remove('open');" style="cursor: pointer;">📦 Todos los productos</span></li>
             
             <!-- Productos (Categorías) -->
             <li>
-                <span onclick="toggleSubmenu()" style="cursor: pointer;">Productos ▼</span>
+                <span onclick="toggleSubmenu()" style="cursor: pointer;">Categorías ▼</span>
                 <ul id="submenu-productos" style="display: none; background: #1a1a1a; list-style: none; padding-left: 15px;">
                     <li><span onclick="filtrarCategoria('Celulares')" style="cursor: pointer;">Celulares</span></li>
                     <li><span onclick="filtrarCategoria('Hogar')" style="cursor: pointer;">Hogar</span></li>
@@ -62,9 +62,10 @@
         </ul>
     </nav>
    
+    <!-- Header Fijo con Buscador y Tarjetitas Rápidas -->
     <div class="header-fijo">
         <header class="main-header">
-            <img src="img/logo.png" alt="Logo" class="logo-principal">
+            <img src="img/logo.png" alt="Logo" class="logo-principal" onerror="this.src='https://via.placeholder.com/90'">
             <div class="brand-text-container">
                 <h1 class="brand-name">Punto Digital</h1>
                 <p class="brand-slogan">Tu mundo digital, en un punto.</p>
@@ -75,21 +76,66 @@
             <div class="search-box">
                 <input type="text" id="busqueda" placeholder="¿Qué estás buscando hoy?">
             </div>
+            
+            <!-- Tarjetitas Rápidas de Navegación Abajo del Buscador -->
+            <div class="quick-nav-container">
+                <button class="quick-chip" onclick="scrollearA('seccion-destacados')">✨ Destacados</button>
+                <button class="quick-chip" onclick="scrollearA('seccion-ofertas')">🔥 Ofertas</button>
+                <button class="quick-chip" onclick="document.getElementById('side-nav').classList.add('open')">📂 Categorías</button>
+                <button class="quick-chip" onclick="scrollearA('seccion-contacto')">💬 Contacto</button>
+            </div>
         </nav>
     </div>
 
-    <!-- Contenido Principal Dinámico -->
-    <main class="main-content">
-        <!-- Sección de Últimos Productos (2 filas de 5 en la Home) -->
-        <section id="seccion-novedades" class="container my-4">
-            <div class="section-title" style="margin-bottom: 15px; font-weight: 600; font-size: 1.2rem;">✨ Últimos Productos Cargados</div>
-            <div id="grid-novedades" class="products-grid-5"></div>
+    <!-- Contenido Principal -->
+    <main class="main-content" style="max-width: 1200px; margin: 0 auto; padding: 20px 15px;">
+        
+        <!-- Vista Completa del Inicio -->
+        <div id="vista-inicio-completa">
+            <!-- 1. Nuestros Destacados (2 filas de 5 en PC, 2 col en móvil) -->
+            <section id="seccion-destacados" style="margin-bottom: 40px;">
+                <div class="section-title" style="margin-bottom: 15px; font-weight: 700; font-size: 1.4rem; color: var(--amarillo);">
+                    ✨ Nuestros Destacados
+                </div>
+                <div id="grid-destacados" class="products-grid-5"></div>
+            </section>
+
+            <!-- 2. Ofertas -->
+            <section id="seccion-ofertas" style="margin-bottom: 40px;">
+                <div class="section-title" style="margin-bottom: 15px; font-weight: 700; font-size: 1.4rem; color: var(--amarillo);">
+                    🔥 Ofertas Especiales
+                </div>
+                <div id="grid-ofertas" class="products-grid"></div>
+            </section>
+
+            <!-- 3. Todos los productos -->
+            <section id="seccion-todos" style="margin-bottom: 40px;">
+                <div class="section-title" style="margin-bottom: 15px; font-weight: 700; font-size: 1.4rem; color: var(--amarillo);">
+                    📦 Todos los productos
+                </div>
+                <div id="grid-todos" class="products-grid"></div>
+            </section>
+        </div>
+
+        <!-- Vista Separada Independiente (Para Categorías o Búsquedas) -->
+        <section id="seccion-resultado-filtro" style="display: none; margin-bottom: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div id="titulo-filtro-activo" class="section-title" style="font-weight: 700; font-size: 1.4rem; color: var(--amarillo);"></div>
+                <button onclick="mostrarInicioCompleto()" style="background: var(--amarillo); color: black; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: inherit;">← Volver al Inicio</button>
+            </div>
+            <div id="grid-resultado-filtro" class="products-grid"></div>
         </section>
 
-        <!-- Sección general de productos / ofertas según la vista activa -->
-        <section class="container my-4">
-            <div id="contenedor-productos" class="products-grid"></div>
+        <!-- Bloque de Contacto Directo abajo de todo -->
+        <section id="seccion-contacto" style="background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-top: 40px; text-align: center;">
+            <h3 style="color: var(--amarillo); margin-top: 0;">💬 Contactate con Nosotros</h3>
+            <p style="color: #aaa; margin-bottom: 15px;">¿Tenés alguna duda sobre algún producto o pedido?</p>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <a href="https://wa.me/5492604401898" target="_blank" style="background: var(--verde); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">WhatsApp: 2604401898</a>
+                <a href="https://instagram.com/puntodigital.sr" target="_blank" style="background: #e1306c; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;">Instagram</a>
+            </div>
         </section>
+
     </main>
 
     <div id="cart-float" onclick="toggleCarrito()">
@@ -98,6 +144,7 @@
 
     <div id="toast-container"></div>
 
+    <!-- Carrito Lateral -->
     <div id="carrito-lateral" class="cart-sidebar">
         <div class="cart-header">
             <h2 style="margin:0; font-size:1.2rem;">Tu Carrito</h2>
@@ -143,13 +190,6 @@
             </div>
 
             <button class="btn-whatsapp" onclick="enviarWhatsApp()">Enviar Pedido por WhatsApp</button>
-        </div>
-    </div>
-
-    <div id="modal-detalle" class="modal" onclick="cerrarModal(event)">
-        <div class="modal-content">
-            <button class="modal-close" onclick="cerrarModal()">&times;</button>
-            <div id="modal-body"></div>
         </div>
     </div>
 
