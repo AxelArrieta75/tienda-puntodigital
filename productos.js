@@ -25,89 +25,76 @@ const datosBancoPD = {
     titular: "Axel Elias Arrieta"
 };
 
-const urlCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_ptTrZ2OTWhfqb63EL20FS0MfLWFSQWkCEOpvTCEvK_27inAjKNJBenipvkAJQDD-jbqsnzpyy0KP/pub?output=csv";
+// CREDENCIALES DE SUPABASE
+const SUPABASE_URL = "https://wewhvvghcxeqbubohfpd.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_ZxFDnP5vWRLmCi8GpdmWNQ_lVtruULN";
 
 // ==========================================
-// 2. CARGA Y PROCESAMIENTO SEGURO DEL CSV
+// 2. CARGA DESDE API SUPABASE
 // ==========================================
 async function obtenerProductos() {
     try {
-        const respuesta = await fetch(urlCSV);
-        const datos = await respuesta.text();
-        
-        const filas = datos.split(/\r?\n/);
-        if (filas.length <= 1) return;
-        
-        productos = filas.slice(1).map((fila, index) => {
-            if (!fila.trim()) return null;
-
-            const columnas = [];
-            let dentroDeComillas = false;
-            let celdaActual = "";
-
-            for (let i = 0; i < fila.length; i++) {
-                let char = fila[i];
-                if (char === '"') {
-                     dentroDeComillas = !dentroDeComillas;
-                } else if ((char === ',' || char === ';') && !dentroDeComillas) {
-                     columnas.push(celdaActual.trim());
-                     celdaActual = "";
-                } else {
-                     celdaActual += char;
-                }
+        const respuesta = await fetch(`${SUPABASE_URL}/rest/v1/productos?select=*&order=id.asc&limit=1000`, {
+            method: 'GET',
+            headers: {
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Content-Type': 'application/json'
             }
-            columnas.push(celdaActual.trim());
+        });
 
-            if (columnas.length < 4) return null;
+        if (!respuesta.ok) {
+            throw new Error(`Error HTTP: ${respuesta.status}`);
+        }
 
-            const limpiar = (texto) => texto ? texto.replace(/^"|"$/g, "").trim() : "";
+        const datos = await respuesta.json();
 
+        productos = datos.map(item => {
             let imgAdicionales = [];
-            if (columnas[5] && columnas[5].trim() !== "") imgAdicionales.push(limpiar(columnas[5]));
-            if (columnas[6] && columnas[6].trim() !== "") imgAdicionales.push(limpiar(columnas[6]));
-            if (columnas[7] && columnas[7].trim() !== "") imgAdicionales.push(limpiar(columnas[7]));
-            
-            imgAdicionales = imgAdicionales.filter(img => img !== "" && img !== '""');
+            if (item.imagen_1 && item.imagen_1.trim() !== "" && item.imagen_1 !== "NULL") imgAdicionales.push(item.imagen_1.trim());
+            if (item.imagen_2 && item.imagen_2.trim() !== "" && item.imagen_2 !== "NULL") imgAdicionales.push(item.imagen_2.trim());
+            if (item.imagen_3 && item.imagen_3.trim() !== "" && item.imagen_3 !== "NULL") imgAdicionales.push(item.imagen_3.trim());
 
-            let fechaOfertaValor = columnas[8] ? limpiar(columnas[8]) : null;
-            let stockValor = null;
-            if (columnas[9] && columnas[9] !== "") {
-                stockValor = parseInt(columnas[9].replace(/\D/g, ""));
+            let imgPrincipal = item.Imagen ? item.Imagen.trim() : (item.imagen ? item.imagen.trim() : "");
+            if ((!imgPrincipal || imgPrincipal === "" || imgPrincipal === "NULL") && imgAdicionales.length > 0) {
+                imgPrincipal = imgAdicionales[0];
             }
 
-            let descTexto = limpiar(columnas[4]);
-            if (!descTexto || descTexto === '""' || descTexto === "") {
+            let descTexto = item.descripcion ? item.descripcion.trim() : "";
+            if (!descTexto || descTexto === "" || descTexto === "NULL") {
                 descTexto = "¡Excelente producto disponible en Punto Digital!";
             }
 
             return {
-                id: index + 1,
-                nombre: limpiar(columnas[0]) || "Producto sin nombre",
-                precio: columnas[1] ? parseInt(columnas[1].replace(/\D/g, "")) : 0,
-                categoria: limpiar(columnas[2]) || "General", 
-                imagen: limpiar(columnas[3]),
+                id: item.id,
+                nombre: item.Nombre ? item.Nombre.trim() : (item.nombre ? item.nombre.trim() : "Producto sin nombre"),
+                precio: item.precio ? parseInt(item.precio, 10) : 0,
+                categoria: item.categoria ? item.categoria.trim() : "General", 
+                imagen: imgPrincipal,
                 descripcion: descTexto,
                 imagenesExtra: imgAdicionales,
-                fechaOferta: fechaOfertaValor,
-                stock: stockValor
+                fechaOferta: item.fecha_oferta ? item.fecha_oferta.trim() : null,
+                // Leemos el campo destacado desde Supabase (puede venir como booleano true/false)
+                destacado: item.destacado === true || item.destacado === "true" || item.destacado === 1,
+                stock: (item.stock !== null && item.stock !== undefined && item.stock !== "") 
+                    ? parseInt(item.stock, 10) 
+                    : null
             };
-        }).filter(p => p !== null && p.nombre !== "" && p.nombre !== "Producto sin nombre");
+        }).filter(p => p.nombre !== "" && p.nombre !== "Producto sin nombre");
 
         inyectarDatosBancoUI();
         cargarDatosCliente(); 
         
-        // Renderizar secciones principales
         renderizarPaginaPrincipal();
         actualizar();
 
-        // Renderizar detalle si estamos en producto.html
         const urlParams = new URLSearchParams(window.location.search);
         const idParam = urlParams.get('id');
         if (idParam && document.getElementById("detalle-producto-container")) {
             mostrarDetalleEnPagina(idParam);
         }
     } catch (error) {
-        console.error("Error cargando base de datos:", error);
+        console.error("Error cargando base de datos desde Supabase:", error);
     }
 }
 
@@ -115,37 +102,42 @@ async function obtenerProductos() {
 // 3. RENDERIZADO DE SECCIONES EN INDEX.HTML
 // ==========================================
 function renderizarPaginaPrincipal() {
-    // 1. Nuestros Destacados (Últimos modificados / cargados primero)
+    // 1. Destacados (Filtra estrictamente los que tengan destacado = true en Supabase, hasta 10)
     const contDestacados = document.getElementById("grid-destacados");
-    const destacados = [...productos].reverse().slice(0, 10);
+    const destacados = productos.filter(p => p.destacado).slice(0, 10);
     if (contDestacados) {
         contDestacados.innerHTML = destacados.length > 0 
-            ? destacados.map(p => crearTarjetaHTML(p)).join('')
-            : '<p style="color:#888;">No hay productos destacados cargados.</p>';
+            ? destacados.map(p => crearTarjetaHTML(p)).join('') 
+            : '<p style="color:#888;">No hay productos destacados configurados.</p>';
     }
 
     // 2. Ofertas Especiales
     const contOfertas = document.getElementById("grid-ofertas");
     const ofertas = productos.filter(p => comprobarOfertaActiva(p.fechaOferta));
     if (contOfertas) {
-        contOfertas.innerHTML = ofertas.length > 0
-            ? ofertas.map(p => crearTarjetaHTML(p)).join('')
+        contOfertas.innerHTML = ofertas.length > 0 
+            ? ofertas.map(p => crearTarjetaHTML(p)).join('') 
             : '<p style="color:#888;">No hay ofertas activas en este momento.</p>';
     }
 
     // 3. Todos los productos
     const contTodos = document.getElementById("grid-todos");
     if (contTodos) {
-        contTodos.innerHTML = productos.length > 0
-            ? productos.map(p => crearTarjetaHTML(p)).join('')
+        contTodos.innerHTML = productos.length > 0 
+            ? productos.map(p => crearTarjetaHTML(p)).join('') 
             : '<p style="color:#888;">No hay productos disponibles.</p>';
     }
 }
 
 function crearTarjetaHTML(p) {
+    let imgValida = p.imagen;
+    if ((!imgValida || imgValida.trim() === "" || imgValida === "NULL") && p.imagenesExtra && p.imagenesExtra.length > 0) {
+        imgValida = p.imagenesExtra[0];
+    }
+
     let rutaImg = 'https://via.placeholder.com/150';
-    if (p.imagen && p.imagen.trim() !== '') {
-        rutaImg = p.imagen.startsWith('http') ? p.imagen : `img/${p.imagen}`;
+    if (imgValida && imgValida.trim() !== '' && imgValida !== "NULL") {
+        rutaImg = imgValida.startsWith('http') ? imgValida : `img/${imgValida}`;
     }
 
     const esOferta = comprobarOfertaActiva(p.fechaOferta);
@@ -214,7 +206,7 @@ function obtenerPrecioFinal(p) {
 }
 
 // ==========================================
-// 4. VISTAS Y FILTROS APARTE (Categorías / Búsqueda)
+// 4. VISTAS Y FILTROS (Categorías / Búsqueda)
 // ==========================================
 function filtrarCategoria(catNombre) {
     const vistaInicio = document.getElementById("vista-inicio-completa");
@@ -224,14 +216,13 @@ function filtrarCategoria(catNombre) {
 
     if (vistaInicio) vistaInicio.style.display = "none";
     if (seccionFiltro) seccionFiltro.style.display = "block";
-
     if (tituloFiltro) tituloFiltro.innerText = `📂 Categoría: ${catNombre}`;
 
     const filtrados = productos.filter(p => p.categoria && p.categoria.toLowerCase().trim() === catNombre.toLowerCase().trim());
 
     if (gridFiltro) {
         gridFiltro.innerHTML = filtrados.length > 0 
-            ? filtrados.map(p => crearTarjetaHTML(p)).join('')
+            ? filtrados.map(p => crearTarjetaHTML(p)).join('') 
             : `<p style="grid-column: span 4; text-align: center; color: #888; padding: 40px 0;">No se encontraron productos en la categoría "${catNombre}".</p>`;
     }
 
@@ -254,14 +245,13 @@ function filtrarBusquedaGeneral(texto) {
 
     if (vistaInicio) vistaInicio.style.display = "none";
     if (seccionFiltro) seccionFiltro.style.display = "block";
-
     if (tituloFiltro) tituloFiltro.innerText = `🔍 Resultados para: "${texto}"`;
 
     const encontrados = productos.filter(p => p.nombre.toLowerCase().includes(query) || p.categoria.toLowerCase().includes(query));
 
     if (gridFiltro) {
         gridFiltro.innerHTML = encontrados.length > 0 
-            ? encontrados.map(p => crearTarjetaHTML(p)).join('')
+            ? encontrados.map(p => crearTarjetaHTML(p)).join('') 
             : `<p style="grid-column: span 4; text-align: center; color: #888; padding: 40px 0;">No se encontraron productos coincidentes.</p>`;
     }
 }
@@ -290,7 +280,7 @@ function scrollearA(idSeccion) {
 }
 
 // ==========================================
-// 5. DETALLE EN PÁGINA INDIVIDUAL CON SELECTOR Y CONTADOR ROJO
+// 5. DETALLE EN PÁGINA INDIVIDUAL
 // ==========================================
 function mostrarDetalleEnPagina(idProducto) {
     const p = productos.find(i => i.id == idProducto || i.nombre === decodeURIComponent(idProducto));
@@ -303,13 +293,25 @@ function mostrarDetalleEnPagina(idProducto) {
     
     clearInterval(countdownInterval);
     
-    const todasLasImagenes = [p.imagen, ...p.imagenesExtra].filter(img => img && img.trim() !== "");
+    const todasLasImagenes = [p.imagen, ...p.imagenesExtra].filter(img => img && img !== "NULL" && img.trim() !== "");
+    
+    let rutaImgPrincipal = 'https://via.placeholder.com/300';
+    if (todasLasImagenes.length > 0) {
+        rutaImgPrincipal = todasLasImagenes[0].startsWith('http') ? todasLasImagenes[0] : `img/${todasLasImagenes[0]}`;
+    }
+
     let miniaturasHTML = "";
     if (todasLasImagenes.length > 1) {
-        miniaturasHTML = `<div class="modal-thumbnails" style="display: flex; gap: 8px; justify-content: center; margin-top: 12px; overflow-x: auto;">` + 
+        miniaturasHTML = `<div class="modal-thumbnails">` + 
             todasLasImagenes.map((img, index) => {
                 const url = img.startsWith('http') ? img : `img/${img}`;
-                return `<img src="${url}" class="${index === 0 ? 'active-thumb' : ''}" style="width: 60px; height: 60px; object-fit: contain; background: white; border-radius: 8px; cursor: pointer; border: 2px solid ${index === 0 ? 'var(--amarillo)' : 'transparent'};" onclick="cambiarFotoModal(this, '${url}')" onerror="this.src='https://via.placeholder.com/70'">`;
+                const esActiva = index === 0;
+                return `
+                    <img src="${url}" 
+                         class="${esActiva ? 'active-thumb' : ''}" 
+                         onclick="cambiarFotoModal(this, '${url}')" 
+                         onerror="this.style.display='none'">
+                `;
             }).join('') + `</div>`;
     }
 
@@ -320,14 +322,14 @@ function mostrarDetalleEnPagina(idProducto) {
     if (esOfertaValida) {
         const precioRebajado = obtenerPrecioFinal(p);
         bannerOfertaHTML = `
-            <div class="modal-banner-oferta" style="background: rgba(255, 56, 56, 0.15); border: 1px solid #ff3838; padding: 10px 15px; border-radius: 10px; margin: 12px 0;">
-                <span style="font-size: 0.85rem; font-weight: 700; color: #ff6b6b; display: block; margin-bottom: 3px;">⏳ OFERTA POR TIEMPO LIMITADO:</span>
-                <div id="countdown-reloj" class="reloj" style="font-size: 1.3rem; font-weight: 800; color: #ff3838; text-shadow: 0 0 10px rgba(255, 56, 56, 0.4);">Calculando...</div>
+            <div class="modal-banner-oferta">
+                <span style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 3px;">⏳ OFERTA POR TIEMPO LIMITADO:</span>
+                <div id="countdown-reloj" class="reloj" style="font-size: 1.3rem; font-weight: 800; color: #ff3838;">Calculando...</div>
             </div>
         `;
         precioModalHTML = `
-            <div class="modal-precio-contenedor-stack" style="display: flex; align-items: baseline; gap: 15px; margin-top: 5px;">
-                <span class="modal-precio-original-tachado" style="font-size: 1.1rem; color: #ff4d4d; text-decoration: line-through; font-weight: normal;">$${p.precio.toLocaleString('es-AR')}</span>
+            <div style="display: flex; align-items: baseline; gap: 15px; margin-top: 5px;">
+                <span style="font-size: 1.1rem; color: #ff4d4d; text-decoration: line-through;">$${p.precio.toLocaleString('es-AR')}</span>
                 <span class="modal-precio-tag" style="margin: 0; color: var(--amarillo); font-size: 2rem; font-weight: bold;">$${precioRebajado.toLocaleString('es-AR')}</span>
             </div>
         `;
@@ -338,44 +340,42 @@ function mostrarDetalleEnPagina(idProducto) {
     let btnAccionHTML = "";
 
     if (p.stock !== null && p.stock <= 0) {
-        badgeStockHTML = `<p class="modal-escasez-badge" style="color:#ff3838;">❌ ¡Producto temporalmente agotado!</p>`;
+        badgeStockHTML = `<p style="color:#ff3838; font-weight: 600;">❌ ¡Producto temporalmente agotado!</p>`;
         btnAccionHTML = `<button class="btn-add" style="padding:15px; font-size:1.1rem; margin-top:15px; background:#444; color:#aaa; cursor:not-allowed;" disabled>Agotado</button>`;
     } else {
         if (p.stock !== null && p.stock <= 5) {
-            badgeStockHTML = `<p class="modal-escasez-badge" style="color:#ffb300;">⚡ ¡Solo quedan ${p.stock} unidades!</p>`;
+            badgeStockHTML = `<p style="color:#ffb300; font-weight: 600;">⚡ ¡Solo quedan ${p.stock} unidades!</p>`;
         } else if (p.stock !== null) {
-            badgeStockHTML = `<p class="modal-escasez-badge" style="color:#25d366;">✅ Stock Disponible (${p.stock} un.)</p>`;
+            badgeStockHTML = `<p style="color:#25d366; font-weight: 600;">✅ Stock Disponible (${p.stock} un.)</p>`;
         }
         btnAccionHTML = `
             <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
                 <div style="display: flex; align-items: center; background: #161616; border: 1px solid #333; border-radius: 8px; padding: 5px;">
-                    <button class="qty-btn" onclick="cambiarCantidadDetalle(-1)" style="width: 32px; height: 32px;">-</button>
+                    <button class="qty-btn" onclick="cambiarCantidadDetalle(-1)">-</button>
                     <span id="cantidad-detalle-input" style="font-weight: bold; color: #FFD700; min-width: 30px; text-align: center; font-size: 1.1rem;">1</span>
-                    <button class="qty-btn" onclick="cambiarCantidadDetalle(1)" style="width: 32px; height: 32px;">+</button>
+                    <button class="qty-btn" onclick="cambiarCantidadDetalle(1)">+</button>
                 </div>
                 <button class="btn-add" style="flex: 1; padding: 15px; font-size: 1.1rem; margin: 0;" onclick="agregarDesdeDetalle('${p.nombre.replace(/'/g, "\\'")}')">Agregar al Carrito</button>
             </div>
         `;
     }
 
-    const rutaImgPrincipal = p.imagen.startsWith('http') ? p.imagen : `img/${p.imagen}`;
-
     cont.innerHTML = `
-        <div class="modal-col-galeria" style="display: flex; flex-direction: column; align-items: center;">
-            <div class="modal-zoom-container" style="width: 100%; height: 320px; background: white; border-radius: 15px; display: flex; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box;">
-                <img id="foto-principal-modal" src="${rutaImgPrincipal}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.src='https://via.placeholder.com/300'">
+        <div class="detalle-col-izquierda">
+            <div class="modal-zoom-container">
+                <img id="foto-principal-modal" src="${rutaImgPrincipal}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/300'">
             </div>
             ${miniaturasHTML}
         </div>
         
-        <div class="modal-col-info" style="display: flex; flex-direction: column; justify-content: center;">
-            <h2 style="font-size: 2rem; margin-top: 0; margin-bottom: 10px; color: white;">${p.nombre}</h2>
+        <div class="detalle-col-derecha">
+            <h2>${p.nombre}</h2>
             ${bannerOfertaHTML}
             ${precioModalHTML}
             ${badgeStockHTML}
-            <div class="modal-descripcion-contenedor" style="margin-top: 15px; border-top: 1px solid #222; padding-top: 12px;">
+            <div class="modal-descripcion-contenedor">
                 <h3 style="font-size: 0.85rem; color: #888; text-transform: uppercase; margin-bottom: 5px;">Descripción</h3>
-                <p style="color: #ddd; font-size: 0.95rem; line-height: 1.5; margin: 0;">${p.descripcion}</p>
+                <p>${p.descripcion}</p>
             </div>
             ${btnAccionHTML}
         </div>
@@ -387,10 +387,8 @@ function cambiarFotoModal(elemento, urlNueva) {
     if (fotoPrincipal) fotoPrincipal.src = urlNueva;
     document.querySelectorAll(".modal-thumbnails img").forEach(img => {
         img.classList.remove("active-thumb");
-        img.style.borderColor = "transparent";
     });
     elemento.classList.add("active-thumb");
-    elemento.style.borderColor = "var(--amarillo)";
 }
 
 function cambiarCantidadDetalle(valor) {
@@ -706,7 +704,7 @@ function enviarWhatsApp() {
     }
 
     if (metodoEntrega === "envio" && direccionCliente === "") {
-        alert("Por favor, ingresá la dirección para coordinar el envío a domicilio.");
+        alert("Por filtrado, ingresá la dirección para coordinar el envío a domicilio.");
         return;
     }
 
@@ -736,8 +734,11 @@ function enviarWhatsApp() {
     });
     m += `────────────────────%0A`;
     
+    let textoTotal = "$0";
     const totalMontoElem = document.getElementById("total-monto");
-    const textoTotal = totalMontoElem ? totalMontoElem.innerText.replace(/\n/g, ' ') : "$0";
+    if (totalMontoElem) {
+        textoTotal = totalMontoElem.innerText.replace(/\n/g, ' ');
+    }
     m += `*Total a Pagar:* ${textoTotal}`;
     
     window.open(`https://wa.me/5492604401898?text=${m}`);
